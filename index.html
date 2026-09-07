@@ -468,6 +468,22 @@ var I18N = {
     entry_importParseError:"Couldn't read that file — make sure it's a valid Excel (.xlsx) or CSV file.",
     entry_importAuditDetail:'imported {created} new / {updated} updated article(s) from "{file}"',
     entry_importSaved:'{created} new and {updated} updated article(s) imported for {name}.',
+    admin_countriesTitle:'Countries', admin_countriesCap:'The list of countries a distributor can be assigned to.',
+    admin_addCountry:'Add country', admin_addCountryTitle:'Add country', admin_editCountryTitle:'Edit country',
+    admin_noCountries:'No countries yet — add one before adding a distributor.', admin_distributorsCol:'Distributors',
+    admin_deleteCountryTitle:'Delete country', admin_deleteCountryBody:'Remove {name} from the list of countries?',
+    admin_deleteCountryBlockedBody:'{name} is still assigned to {count} distributor(s) — reassign or remove them first, then delete this country.',
+    admin_deleteCountryConfirm:'Delete country',
+    admin_distributorsTitle:'Distributors', admin_distributorsCap:"Add, rename, move to a different country, or remove a distributor — changes apply everywhere: dashboard, data entry, and any account assigned to it.",
+    admin_addDistributor:'Add distributor', admin_addDistributorTitle:'Add distributor', admin_editDistributorTitle:'Edit distributor',
+    admin_noDistributors:'No distributors yet.', admin_addCountryFirst:'Add a country first — a distributor must be linked to one.',
+    admin_deleteDistributorTitle:'Delete distributor', admin_deleteDistributorBody:"Remove {name} and all of its data (monthly/quarterly figures, articles, comments)? This can't be undone.",
+    admin_deleteDistributorConfirm:'Delete distributor',
+    toast_countryNameRequired:'Enter a country name.', toast_countryTaken:'That country already exists.',
+    toast_countryAdded:'{name} added.', toast_countryRenamed:'"{old}" renamed to "{name}" — updated on every distributor and view that used it.',
+    toast_countryDeleted:'{name} removed.',
+    toast_distributorNameRequired:'Enter a distributor name.', toast_distributorNameTaken:'That distributor name already exists.',
+    toast_distributorAdded:'{name} added.', toast_distributorUpdated:'{name} updated.', toast_distributorDeleted:'{name} removed.',
     admin_workspaceSettings:'Workspace settings', admin_companyName:'Company name', admin_currencyLabel:'Currency label',
     admin_defaultLanguage:'Default language (new visitors)', admin_saveSettings:'Save settings',
     admin_usersAccess:'Users &amp; access', admin_usersAccessCap:'Sign-in is checked against this list. Passwords are stored as plain data inside this page for convenience — not encrypted — so treat this as an internal access list, not a secure login system.',
@@ -558,6 +574,22 @@ var I18N = {
     entry_importParseError:"Impossible de lire ce fichier — vérifiez qu'il s'agit d'un fichier Excel (.xlsx) ou CSV valide.",
     entry_importAuditDetail:'import de {created} nouveau(x) / {updated} mis à jour depuis « {file} »',
     entry_importSaved:'{created} nouveau(x) et {updated} mis à jour importé(s) pour {name}.',
+    admin_countriesTitle:'Pays', admin_countriesCap:'La liste des pays auxquels un distributeur peut être rattaché.',
+    admin_addCountry:'Ajouter un pays', admin_addCountryTitle:'Ajouter un pays', admin_editCountryTitle:'Modifier le pays',
+    admin_noCountries:"Aucun pays pour l'instant — ajoutez-en un avant d'ajouter un distributeur.", admin_distributorsCol:'Distributeurs',
+    admin_deleteCountryTitle:'Supprimer le pays', admin_deleteCountryBody:'Retirer {name} de la liste des pays ?',
+    admin_deleteCountryBlockedBody:'{name} est encore assigné à {count} distributeur(s) — réassignez-les ou supprimez-les, puis supprimez ce pays.',
+    admin_deleteCountryConfirm:'Supprimer le pays',
+    admin_distributorsTitle:'Distributeurs', admin_distributorsCap:"Ajoutez, renommez, déplacez vers un autre pays ou supprimez un distributeur — les changements s'appliquent partout : tableau de bord, saisie de données, et tout compte qui lui est assigné.",
+    admin_addDistributor:'Ajouter un distributeur', admin_addDistributorTitle:'Ajouter un distributeur', admin_editDistributorTitle:'Modifier le distributeur',
+    admin_noDistributors:'Aucun distributeur pour le moment.', admin_addCountryFirst:"Ajoutez d'abord un pays — un distributeur doit y être rattaché.",
+    admin_deleteDistributorTitle:'Supprimer le distributeur', admin_deleteDistributorBody:"Supprimer {name} et toutes ses données (chiffres mensuels/trimestriels, articles, commentaires) ? Cette action est irréversible.",
+    admin_deleteDistributorConfirm:'Supprimer le distributeur',
+    toast_countryNameRequired:'Saisissez un nom de pays.', toast_countryTaken:'Ce pays existe déjà.',
+    toast_countryAdded:'{name} ajouté.', toast_countryRenamed:'« {old} » renommé en « {name} » — mis à jour partout où il était utilisé.',
+    toast_countryDeleted:'{name} supprimé.',
+    toast_distributorNameRequired:'Saisissez un nom de distributeur.', toast_distributorNameTaken:'Ce nom de distributeur existe déjà.',
+    toast_distributorAdded:'{name} ajouté.', toast_distributorUpdated:'{name} mis à jour.', toast_distributorDeleted:'{name} supprimé.',
     admin_workspaceSettings:"Paramètres de l'espace", admin_companyName:'Nom de l’entreprise', admin_currencyLabel:'Devise',
     admin_defaultLanguage:'Langue par défaut (nouveaux visiteurs)', admin_saveSettings:'Enregistrer les paramètres',
     admin_usersAccess:'Utilisateurs et accès', admin_usersAccessCap:"La connexion est vérifiée par rapport à cette liste. Les mots de passe sont stockés en clair dans la page, par simplicité — pas chiffrés — à traiter comme une liste d'accès interne, pas un système de connexion sécurisé.",
@@ -690,12 +722,18 @@ function demoReconcile(stored, incoming, actingUser){
   var byId = {}; (stored.distributors||[]).forEach(function(d){ byId[d.id]=d; });
   var result = JSON.parse(JSON.stringify(stored));
   result.meta = stored.meta; result.users = stored.users;
-  result.distributors = (incoming.distributors||[]).map(function(incD){
-    var storedD = byId[incD.id]; if(!storedD) return null;
-    var allowed = scope==='all' || scope.indexOf(incD.name)>-1;
+  result.countries = stored.countries; // adding/renaming/removing countries is admin-only
+  // Built from stored.distributors (not incoming) so a non-admin save can never
+  // add or remove a distributor by omission or by sending an unknown id.
+  result.distributors = stored.distributors.map(function(storedD){
+    var incD = (incoming.distributors||[]).filter(function(x){ return x.id===storedD.id; })[0];
+    if(!incD) return storedD;
+    var allowed = scope==='all' || scope.indexOf(storedD.name)>-1;
     if(!allowed) return storedD;
-    var merged = JSON.parse(JSON.stringify(incD)); merged.country = storedD.country; return merged;
-  }).filter(function(d){return d;});
+    var merged = JSON.parse(JSON.stringify(incD));
+    merged.id = storedD.id; merged.name = storedD.name; merged.country = storedD.country; // rename/country are admin-only
+    return merged;
+  });
   result.skuByDistributor = {};
   Object.keys(stored.skuByDistributor||{}).forEach(function(k){ result.skuByDistributor[k]=stored.skuByDistributor[k]; });
   Object.keys(incoming.skuByDistributor||{}).forEach(function(k){
@@ -712,7 +750,7 @@ function demoHandle(action, payload){
      "server" store would alias the same objects and role enforcement
      couldn't be tested honestly (a client mutation would corrupt the
      "server" copy before reconciliation even runs). */
-  if(!DEMO_STORE) DEMO_STORE = JSON.parse(byId('app-data').textContent);
+  if(!DEMO_STORE) DEMO_STORE = JSON.parse(JSON.stringify(STATE)); // STATE already has .countries migrated by ensureCountriesList()
   if(action==='login' || action==='sync'){
     var uname = String(payload.username||'').trim().toLowerCase();
     var rec = (DEMO_STORE.users||[]).filter(function(u){ return u.active!==false && u.username.toLowerCase()===uname && u.password===payload.password; })[0];
@@ -737,6 +775,21 @@ function demoHandle(action, payload){
 
 /* ================================ STATE ================================= */
 var STATE = JSON.parse(byId('app-data').textContent);
+/* STATE.countries is the managed list of country names (Admin panel → Countries).
+   Older/live data saved before that feature existed won't have it yet, so it's
+   derived once from whatever countries the distributors already use — after
+   that it's the source of truth (a country can exist here with zero
+   distributors, e.g. right after being added). Called after every place STATE
+   gets replaced wholesale (login, sync, save) since the backend may still be
+   returning pre-migration data the first few times. */
+function ensureCountriesList(){
+  if(!STATE.countries || !Array.isArray(STATE.countries)){
+    var set = {};
+    (STATE.distributors||[]).forEach(function(d){ if(d.country) set[d.country]=true; });
+    STATE.countries = Object.keys(set).sort(function(a,b){ return a.localeCompare(b); });
+  }
+}
+ensureCountriesList();
 var SESSION = { user: null, lang:'en', view: 'dashboard', distId: null, dashPeriod: 'ytd', countryFilter: 'all',
   entryMode: 'dist', entryDist: null, entryMonth: 'Jan', entryArticle: null, entryArticleQuery: '', entryArticleMonth: 'Jan',
   entryCountry: 'all',
@@ -780,6 +833,7 @@ async function persistNow(successMsg){
   var res = await postGAS('save', { username: SESSION.user.username, password: SESSION.password, state: STATE });
   if(res.ok){
     STATE = res.data;
+    ensureCountriesList();
     toast('ok', successMsg || t('toast_saved'));
     render();
   } else if(res.error === 'network'){
@@ -799,7 +853,7 @@ function startPolling(){
     var editing = active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA' || active.tagName==='SELECT');
     if(editing) return; // don't blow away an in-progress edit
     var res = await postGAS('sync', { username: SESSION.user.username, password: SESSION.password });
-    if(res.ok){ STATE = res.data; render(); }
+    if(res.ok){ STATE = res.data; ensureCountriesList(); render(); }
   }, 15000);
 }
 function stopPolling(){ if(pollTimer) clearInterval(pollTimer); pollTimer = null; }
@@ -834,6 +888,7 @@ async function tryAutoLogin(){
   var res = await postGAS('login', creds);
   if(!res.ok) return false;
   STATE = res.data;
+  ensureCountriesList();
   SESSION.user = res.user;
   SESSION.password = creds.password;
   return true;
@@ -926,6 +981,7 @@ function wireLogin(){
     }
     errBox.classList.remove('show');
     STATE = res.data;
+    ensureCountriesList();
     SESSION.user = res.user;
     SESSION.password = p;
     rememberSession(res.user.username, p);
@@ -2059,6 +2115,20 @@ function renderAdminView(){
         '</div>'+
         '<button class="btn btn-sm" id="save-settings" style="margin-top:14px;">'+t('admin_saveSettings')+'</button>'+
       '</div>'+
+      '<div class="card" style="margin-bottom:20px; max-width:520px;">'+
+        '<div class="card-pad" style="padding-bottom:12px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'+
+          '<div><div class="chart-title">'+t('admin_countriesTitle')+'</div><div class="chart-caption">'+t('admin_countriesCap')+'</div></div>'+
+          '<button class="btn btn-primary btn-sm" id="add-country-btn">'+icon('plus')+t('admin_addCountry')+'</button>'+
+        '</div>'+
+        '<div class="scroll-x" id="countries-table">'+renderCountriesTable()+'</div>'+
+      '</div>'+
+      '<div class="card" style="margin-bottom:20px;">'+
+        '<div class="card-pad" style="padding-bottom:12px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;">'+
+          '<div><div class="chart-title">'+t('admin_distributorsTitle')+'</div><div class="chart-caption">'+t('admin_distributorsCap')+'</div></div>'+
+          '<button class="btn btn-primary btn-sm" id="add-distributor-btn">'+icon('plus')+t('admin_addDistributor')+'</button>'+
+        '</div>'+
+        '<div class="scroll-x" id="distributors-table">'+renderDistributorsTable()+'</div>'+
+      '</div>'+
       '<div class="card" style="margin-bottom:20px;">'+
         '<div class="card-pad" style="padding-bottom:12px;"><div class="chart-title">'+t('admin_usersAccess')+'</div><div class="chart-caption">'+t('admin_usersAccessCap')+'</div></div>'+
         '<div class="scroll-x" id="users-table">'+renderUsersTable()+'</div>'+
@@ -2074,6 +2144,181 @@ function renderAdminView(){
     '</div>';
   return body;
 }
+/* ==================== Countries & Distributors management ==================== */
+/* Admin-only (the Admin panel nav item itself is role-gated, and the server
+   locks distributor add/rename/remove/country-reassignment and the whole
+   `countries` list to admin saves — see reconcileForSave_/demoReconcile). */
+function countryDistributorCount(name){
+  return STATE.distributors.filter(function(d){ return d.country===name; }).length;
+}
+function renderCountriesTable(){
+  var countries = (STATE.countries||[]).slice().sort(function(a,b){ return a.localeCompare(b); });
+  if(!countries.length) return '<div class="empty-state">'+icon('globe')+'<div>'+t('admin_noCountries')+'</div></div>';
+  var rows = countries.map(function(c){
+    return '<tr data-country="'+esc(c)+'">'+
+      '<td><b>'+esc(c)+'</b></td>'+
+      '<td class="num">'+countryDistributorCount(c)+'</td>'+
+      '<td style="white-space:nowrap;">'+
+        '<button class="icon-btn" title="'+esc(t('edit'))+'" data-edit-country="'+esc(c)+'">'+icon('edit')+'</button>'+
+        '<button class="icon-btn" title="'+esc(t('admin_deleteCountryTitle'))+'" data-delete-country="'+esc(c)+'">'+icon('trash')+'</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
+  return '<table><thead><tr><th>'+t('table_country')+'</th><th class="num">'+t('admin_distributorsCol')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function renderDistributorsTable(){
+  var list = STATE.distributors.slice().sort(function(a,b){ return a.name.localeCompare(b.name); });
+  if(!list.length) return '<div class="empty-state">'+icon('box')+'<div>'+t('admin_noDistributors')+'</div></div>';
+  var rows = list.map(function(d){
+    return '<tr data-distributor="'+esc(d.id)+'">'+
+      '<td><b>'+esc(d.name)+'</b></td>'+
+      '<td>'+esc(d.country||t('dash'))+'</td>'+
+      '<td style="white-space:nowrap;">'+
+        '<button class="icon-btn" title="'+esc(t('edit'))+'" data-edit-distributor="'+esc(d.id)+'">'+icon('edit')+'</button>'+
+        '<button class="icon-btn" title="'+esc(t('admin_deleteDistributorTitle'))+'" data-delete-distributor="'+esc(d.id)+'">'+icon('trash')+'</button>'+
+      '</td>'+
+    '</tr>';
+  }).join('');
+  return '<table><thead><tr><th>'+t('entry_distributor')+'</th><th>'+t('table_country')+'</th><th></th></tr></thead><tbody>'+rows+'</tbody></table>';
+}
+function countryFormHtml(name){
+  return '<div class="field"><label>'+t('table_country')+'</label><input id="cf-name" value="'+esc(name||'')+'" autofocus></div>';
+}
+function openCountryModal(oldName){
+  var editing = !!oldName;
+  showModal(editing ? t('admin_editCountryTitle') : t('admin_addCountryTitle'),
+    countryFormHtml(oldName),
+    '<button class="btn" id="cf-cancel">'+t('cancel')+'</button><button class="btn btn-primary" id="cf-save">'+(editing?t('admin_saveChanges'):t('admin_addCountry'))+'</button>'
+  );
+  byId('cf-cancel').addEventListener('click', closeModal);
+  byId('cf-save').addEventListener('click', function(){
+    var name = byId('cf-name').value.trim();
+    if(!name){ toast('err', t('toast_countryNameRequired')); return; }
+    var dup = STATE.countries.some(function(c){ return c.toLowerCase()===name.toLowerCase() && c!==oldName; });
+    if(dup){ toast('err', t('toast_countryTaken')); return; }
+    if(editing){
+      var idx = STATE.countries.indexOf(oldName);
+      if(idx>-1) STATE.countries[idx] = name;
+      if(name!==oldName){
+        // country is a plain name string throughout — cascade the rename
+        // everywhere it's referenced so the dashboard/entry views stay in sync.
+        STATE.distributors.forEach(function(d){ if(d.country===oldName) d.country = name; });
+      }
+      logAudit('country-renamed', '"'+oldName+'" → "'+name+'"');
+      persistNow(t('toast_countryRenamed', {old:oldName, name:name}));
+    } else {
+      STATE.countries.push(name);
+      logAudit('country-added', 'Added country "'+name+'"');
+      persistNow(t('toast_countryAdded', {name:name}));
+    }
+    closeModal();
+    setTimeout(function(){ setView('admin'); }, 50);
+  });
+}
+function confirmDeleteCountry(name){
+  var count = countryDistributorCount(name);
+  if(count>0){
+    showModal(t('admin_deleteCountryTitle'),
+      '<p style="font-size:13.5px;">'+t('admin_deleteCountryBlockedBody',{name:'<b>'+esc(name)+'</b>', count:count})+'</p>',
+      '<button class="btn btn-primary" id="dc-ok">'+t('close')+'</button>'
+    );
+    byId('dc-ok').addEventListener('click', closeModal);
+    return;
+  }
+  showModal(t('admin_deleteCountryTitle'),
+    '<p style="font-size:13.5px;">'+t('admin_deleteCountryBody',{name:'<b>'+esc(name)+'</b>'})+'</p>',
+    '<button class="btn" id="dc-cancel">'+t('cancel')+'</button><button class="btn btn-danger" id="dc-confirm">'+t('admin_deleteCountryConfirm')+'</button>'
+  );
+  byId('dc-cancel').addEventListener('click', closeModal);
+  byId('dc-confirm').addEventListener('click', function(){
+    STATE.countries = STATE.countries.filter(function(c){ return c!==name; });
+    logAudit('country-deleted', 'Deleted country "'+name+'"');
+    persistNow(t('toast_countryDeleted', {name:name}));
+    closeModal();
+    setTimeout(function(){ setView('admin'); }, 50);
+  });
+}
+function distributorFormHtml(d){
+  d = d || { name:'', country:'' };
+  var countryOpts = STATE.countries.slice().sort(function(a,b){ return a.localeCompare(b); })
+    .map(function(c){ return '<option value="'+esc(c)+'"'+(d.country===c?' selected':'')+'>'+esc(c)+'</option>'; }).join('');
+  return ''+
+    '<div class="field"><label>'+t('entry_distributor')+'</label><input id="df-name" value="'+esc(d.name)+'" autofocus></div>'+
+    '<div class="field"><label>'+t('table_country')+'</label><select id="df-country">'+countryOpts+'</select></div>';
+}
+function openDistributorModal(distId){
+  var d = distId ? STATE.distributors.find(function(x){ return x.id===distId; }) : null;
+  var editing = !!d;
+  var title = editing ? t('admin_editDistributorTitle') : t('admin_addDistributorTitle');
+  if(!STATE.countries || !STATE.countries.length){
+    showModal(title,
+      '<div class="hint" style="display:flex; align-items:center; gap:6px;">'+icon('alert')+' '+t('admin_addCountryFirst')+'</div>',
+      '<button class="btn btn-primary" id="df-ok">'+t('close')+'</button>'
+    );
+    byId('df-ok').addEventListener('click', closeModal);
+    return;
+  }
+  showModal(title,
+    distributorFormHtml(d),
+    '<button class="btn" id="df-cancel">'+t('cancel')+'</button><button class="btn btn-primary" id="df-save">'+(editing?t('admin_saveChanges'):t('admin_addDistributor'))+'</button>'
+  );
+  byId('df-cancel').addEventListener('click', closeModal);
+  byId('df-save').addEventListener('click', function(){
+    var name = byId('df-name').value.trim();
+    var country = byId('df-country').value;
+    if(!name){ toast('err', t('toast_distributorNameRequired')); return; }
+    var dup = STATE.distributors.some(function(x){ return x.name.toLowerCase()===name.toLowerCase() && (!editing || x.id!==d.id); });
+    if(dup){ toast('err', t('toast_distributorNameTaken')); return; }
+    if(editing){
+      var oldName = d.name;
+      d.name = name; d.country = country;
+      if(oldName !== name){
+        // assignedDistributors is a list of NAMES (not ids) — cascade the
+        // rename so entry accounts don't silently lose access to this distributor.
+        STATE.users.forEach(function(u){
+          if(u.assignedDistributors && u.assignedDistributors.indexOf(oldName)>-1){
+            u.assignedDistributors = u.assignedDistributors.map(function(n){ return n===oldName ? name : n; });
+          }
+        });
+      }
+      logAudit('distributor-updated', oldName!==name ? ('"'+oldName+'" renamed to "'+name+'"') : ('"'+name+'" updated'));
+      persistNow(t('toast_distributorUpdated', {name:name}));
+    } else {
+      var newDist = { id: uid('dist'), name: name, country: country, months:{}, quarters:{}, trucks_est:null, comment:null, objective_pct:null };
+      STATE.distributors.push(newDist);
+      logAudit('distributor-added', 'Added distributor "'+name+'" ('+country+')');
+      persistNow(t('toast_distributorAdded', {name:name}));
+    }
+    closeModal();
+    setTimeout(function(){ setView('admin'); }, 50);
+  });
+}
+function confirmDeleteDistributor(distId){
+  var d = STATE.distributors.find(function(x){ return x.id===distId; });
+  if(!d) return;
+  showModal(t('admin_deleteDistributorTitle'),
+    '<p style="font-size:13.5px;">'+t('admin_deleteDistributorBody',{name:'<b>'+esc(d.name)+'</b>'})+'</p>',
+    '<button class="btn" id="dd-cancel">'+t('cancel')+'</button><button class="btn btn-danger" id="dd-confirm">'+t('admin_deleteDistributorConfirm')+'</button>'
+  );
+  byId('dd-cancel').addEventListener('click', closeModal);
+  byId('dd-confirm').addEventListener('click', function(){
+    STATE.distributors = STATE.distributors.filter(function(x){ return x.id!==distId; });
+    delete STATE.skuByDistributor[distId];
+    STATE.users.forEach(function(u){
+      if(u.assignedDistributors && u.assignedDistributors.indexOf(d.name)>-1){
+        u.assignedDistributors = u.assignedDistributors.filter(function(n){ return n!==d.name; });
+      }
+    });
+    if(SESSION.distId===distId) SESSION.distId = null;
+    if(SESSION.entryDist===distId) SESSION.entryDist = null;
+    if(typeof IMPORT_STATE!=='undefined' && IMPORT_STATE && IMPORT_STATE.distId===distId) IMPORT_STATE = null;
+    logAudit('distributor-deleted', 'Deleted distributor "'+d.name+'"');
+    persistNow(t('toast_distributorDeleted', {name:d.name}));
+    closeModal();
+    setTimeout(function(){ setView('admin'); }, 50);
+  });
+}
+
 function roleDistributorSummary(u){
   if(u.role==='admin') return '<span class="hint">'+t('admin_allAdmin')+'</span>';
   if(u.role==='viewer') return '<span class="hint">'+t('admin_allReadOnly')+'</span>';
@@ -2135,6 +2380,13 @@ function wireAdminView(){
   on(root, 'click', '[data-edit-user]', function(e, el){ openUserModal(el.getAttribute('data-edit-user')); });
   on(root, 'click', '[data-reset-user]', function(e, el){ openResetModal(el.getAttribute('data-reset-user')); });
   on(root, 'click', '[data-delete-user]', function(e, el){ confirmDeleteUser(el.getAttribute('data-delete-user')); });
+
+  byId('add-country-btn').addEventListener('click', function(){ openCountryModal(null); });
+  byId('add-distributor-btn').addEventListener('click', function(){ openDistributorModal(null); });
+  on(root, 'click', '[data-edit-country]', function(e, el){ openCountryModal(el.getAttribute('data-edit-country')); });
+  on(root, 'click', '[data-delete-country]', function(e, el){ confirmDeleteCountry(el.getAttribute('data-delete-country')); });
+  on(root, 'click', '[data-edit-distributor]', function(e, el){ openDistributorModal(el.getAttribute('data-edit-distributor')); });
+  on(root, 'click', '[data-delete-distributor]', function(e, el){ confirmDeleteDistributor(el.getAttribute('data-delete-distributor')); });
 }
 function openUserModal(userId){
   var u = userId ? STATE.users.find(function(x){ return x.id===userId; }) : null;
