@@ -353,6 +353,10 @@
 </style>
 <div id="root"></div>
 <script id="app-data" type="application/json">{"meta":{"company":"Rodis","year":2026,"currencyLabel":"FCFA","lastUpdated":"2026-01-01","months":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"monthNames":{"Jan":"January","Feb":"February","Mar":"March","Apr":"April","May":"May","Jun":"June","Jul":"July","Aug":"August","Sep":"September","Oct":"October","Nov":"November","Dec":"December"},"defaultLanguage":"en"},"distributors":[{"name":"Demo Distributor A","credit":1000000,"sales2024_cts":null,"sales2024_ca":2000000,"sales2025_cts":null,"sales2025_ca":2500000,"months":{"Jan":{"forecast_qty":100,"actual_qty":80,"forecast_ca":null,"actual_ca":1600000},"Feb":{"forecast_qty":100,"actual_qty":null,"forecast_ca":null,"actual_ca":null}},"quarters":{"T1":{"forecast_qty":300,"actual_qty":80,"forecast_ca":null,"actual_ca":1600000}},"trucks_est":null,"objective_reached":null,"objective_pct":null,"comment":"Demo data — not real.","id":"demo-a","country":"Demoland"},{"name":"Demo Distributor B","credit":500000,"sales2024_cts":null,"sales2024_ca":900000,"sales2025_cts":null,"sales2025_ca":1100000,"months":{"Jan":{"forecast_qty":50,"actual_qty":60,"forecast_ca":null,"actual_ca":1200000}},"quarters":{"T1":{"forecast_qty":150,"actual_qty":60,"forecast_ca":null,"actual_ca":1200000}},"trucks_est":null,"objective_reached":null,"objective_pct":null,"comment":null,"id":"demo-b","country":"Demoland"}],"skuByDistributor":{"demo-a":[{"name":"Demo Product 250ml","code":1,"t1_fc":50,"t1_qty":40,"t1_ca":800000,"months":{}}]},"users":[{"id":"u1","username":"admin","password":"RodisAdmin2026","displayName":"Administrator","role":"admin","assignedDistributors":[],"active":true},{"id":"u2","username":"entry1","password":"Entry2026!","displayName":"Data Entry 1","role":"entry","assignedDistributors":[],"active":true},{"id":"u3","username":"viewer1","password":"View2026!","displayName":"Viewer","role":"viewer","assignedDistributors":[],"active":true}],"auditLog":[]}</script>
+<!-- SheetJS — used only client-side to parse an uploaded Excel/CSV file for the
+     "Import from Excel" data-entry tab; nothing here talks to a remote server
+     other than cdnjs, and no workbook data is sent anywhere but into this page. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
 /* =========================================================================
    Rodis Objectives 2026 — Sales dashboard, data entry & admin panel
@@ -452,6 +456,18 @@ var I18N = {
     entry_articlePick:'Search for a product above to enter its figures.', entry_articleNoCatalog:'This distributor has no product catalog in the source workbook, so article-level entry isn’t available here.',
     entry_rollupTitle:'Trimester &amp; year rollup for this product', entry_rollupNote:'T1–T4 and the year total are calculated automatically from monthly entries (falling back to the original workbook figure for a trimester with no monthly entries yet) — never added twice.',
     entry_col_qFc:'Forecast Qty', entry_col_qAc:'Actual Qty', entry_col_rev:'Revenue', entry_rowYear:'Year total',
+    entry_importTab:'Excel import',
+    entry_importTitle:'Import from Excel', entry_importHint:"Upload a spreadsheet of this distributor's articles — you'll review and adjust the column mapping before anything is saved.",
+    entry_importChoose:'Choose file…', entry_importRowsFound:'rows found',
+    entry_importPreviewTitle:'Review column mapping', entry_importPreviewHint:'We guessed a target field for each column below — check and correct any that look wrong, then confirm. Nothing is saved until you confirm.',
+    entry_importNoNameCol:'Map at least one column to the article name before importing.',
+    entry_importMoreRows:'+ {count} more rows in the file (not shown here).',
+    entry_importConfirm:'Confirm import', entry_importArticleGroup:'Article', entry_importSkipCol:'— Ignore this column —',
+    entry_articleName:'Article name', entry_articleCode:'Code / SKU',
+    entry_metric_fc:'Forecast', entry_metric_ac:'Actual', entry_metric_qty:'Qty', entry_metric_ca:'Revenue',
+    entry_importParseError:"Couldn't read that file — make sure it's a valid Excel (.xlsx) or CSV file.",
+    entry_importAuditDetail:'imported {created} new / {updated} updated article(s) from "{file}"',
+    entry_importSaved:'{created} new and {updated} updated article(s) imported for {name}.',
     admin_workspaceSettings:'Workspace settings', admin_companyName:'Company name', admin_currencyLabel:'Currency label',
     admin_defaultLanguage:'Default language (new visitors)', admin_saveSettings:'Save settings',
     admin_usersAccess:'Users &amp; access', admin_usersAccessCap:'Sign-in is checked against this list. Passwords are stored as plain data inside this page for convenience — not encrypted — so treat this as an internal access list, not a secure login system.',
@@ -530,6 +546,18 @@ var I18N = {
     entry_articlePick:'Recherchez un produit ci-dessus pour saisir ses données.', entry_articleNoCatalog:"Ce distributeur n'a pas de catalogue produit dans le classeur source — la saisie par article n'est pas disponible ici.",
     entry_rollupTitle:'Cumul trimestriel et annuel pour ce produit', entry_rollupNote:"T1–T4 et le total annuel sont calculés automatiquement à partir des saisies mensuelles (ou, à défaut, de la valeur d'origine du classeur pour un trimestre sans saisie mensuelle) — jamais comptés deux fois.",
     entry_col_qFc:'Qté prévue', entry_col_qAc:'Qté réalisée', entry_col_rev:'Chiffre d’affaires', entry_rowYear:'Total annuel',
+    entry_importTab:'Import Excel',
+    entry_importTitle:'Importer depuis Excel', entry_importHint:"Importez un tableau des articles de ce distributeur — vous pourrez vérifier et corriger la correspondance des colonnes avant tout enregistrement.",
+    entry_importChoose:'Choisir un fichier…', entry_importRowsFound:'lignes trouvées',
+    entry_importPreviewTitle:'Vérifier la correspondance des colonnes', entry_importPreviewHint:"Nous avons deviné un champ cible pour chaque colonne ci-dessous — vérifiez et corrigez celles qui semblent incorrectes, puis confirmez. Rien n'est enregistré avant la confirmation.",
+    entry_importNoNameCol:"Associez au moins une colonne au nom de l'article avant d'importer.",
+    entry_importMoreRows:'+ {count} lignes supplémentaires dans le fichier (non affichées ici).',
+    entry_importConfirm:"Confirmer l'import", entry_importArticleGroup:'Article', entry_importSkipCol:'— Ignorer cette colonne —',
+    entry_articleName:"Nom de l'article", entry_articleCode:'Code / Référence',
+    entry_metric_fc:'Prévision', entry_metric_ac:'Réalisé', entry_metric_qty:'Qté', entry_metric_ca:'Chiffre d’affaires',
+    entry_importParseError:"Impossible de lire ce fichier — vérifiez qu'il s'agit d'un fichier Excel (.xlsx) ou CSV valide.",
+    entry_importAuditDetail:'import de {created} nouveau(x) / {updated} mis à jour depuis « {file} »',
+    entry_importSaved:'{created} nouveau(x) et {updated} mis à jour importé(s) pour {name}.',
     admin_workspaceSettings:"Paramètres de l'espace", admin_companyName:'Nom de l’entreprise', admin_currencyLabel:'Devise',
     admin_defaultLanguage:'Langue par défaut (nouveaux visiteurs)', admin_saveSettings:'Enregistrer les paramètres',
     admin_usersAccess:'Utilisateurs et accès', admin_usersAccessCap:"La connexion est vérifiée par rapport à cette liste. Les mots de passe sont stockés en clair dans la page, par simplicité — pas chiffrés — à traiter comme une liste d'accès interne, pas un système de connexion sécurisé.",
@@ -711,6 +739,7 @@ function demoHandle(action, payload){
 var STATE = JSON.parse(byId('app-data').textContent);
 var SESSION = { user: null, lang:'en', view: 'dashboard', distId: null, dashPeriod: 'ytd', countryFilter: 'all',
   entryMode: 'dist', entryDist: null, entryMonth: 'Jan', entryArticle: null, entryArticleQuery: '', entryArticleMonth: 'Jan',
+  entryCountry: 'all',
   sortKey: 'name', sortDir: 1, search: '', statusFilter: 'all', skuSearch: '' };
 (function initLang(){
   var saved = null;
@@ -820,6 +849,7 @@ function setView(view, opts){
 function logout(){
   SESSION.user = null;
   SESSION.password = null;
+  IMPORT_STATE = null;
   forgetSession();
   stopPolling();
   setView('dashboard');
@@ -1229,6 +1259,7 @@ function applyTableFilters(rows){
   rows.sort(function(a,b){
     var av, bv;
     if(key==='name'){ av=a.name; bv=b.name; return dir*av.localeCompare(bv); }
+    if(key==='country'){ av=a.country||''; bv=b.country||''; return dir*av.localeCompare(bv); }
     if(key==='attainment'){ av=a.t.attainment==null?-1:a.t.attainment; bv=b.t.attainment==null?-1:b.t.attainment; }
     else if(key==='forecastQty'){ av=a.t.forecastQty; bv=b.t.forecastQty; }
     else if(key==='actualQty'){ av=a.t.actualQty; bv=b.t.actualQty; }
@@ -1244,14 +1275,15 @@ function sortTh(label, key, extraCls){
 }
 function renderDashboardTable(rows){
   if(!rows.length) return '<div class="empty-state">'+icon('search')+'<div>'+t('table_noMatch')+'</div></div>';
-  var head = '<tr>'+sortTh(t('table_distributor'),'name')+sortTh(t('table_forecastQty'),'forecastQty','num')+sortTh(t('table_actualQty'),'actualQty','num')+sortTh(t('table_attainment'),'attainment','num')+'<th>'+t('table_status')+'</th>'+sortTh(t('table_revenueBooked'),'actualCA','num')+sortTh(t('table_enCoursQty'),'enCoursQty','num')+'<th class="num">'+t('table_enCoursRevenue')+'</th><th>'+t('table_trucksEst')+'</th><th>'+t('table_comment')+'</th><th></th></tr>';
+  var head = '<tr>'+sortTh(t('table_distributor'),'name')+sortTh(t('table_country'),'country')+sortTh(t('table_forecastQty'),'forecastQty','num')+sortTh(t('table_actualQty'),'actualQty','num')+sortTh(t('table_attainment'),'attainment','num')+'<th>'+t('table_status')+'</th>'+sortTh(t('table_revenueBooked'),'actualCA','num')+sortTh(t('table_enCoursQty'),'enCoursQty','num')+'<th class="num">'+t('table_enCoursRevenue')+'</th><th>'+t('table_trucksEst')+'</th><th>'+t('table_comment')+'</th><th></th></tr>';
   var groups = groupByCountry(rows);
   var body = groups.map(function(g){
-    var groupRow = '<tr class="country-row"><td colspan="11">'+esc(g.country)+' <span class="muted">('+g.rows.length+')</span></td></tr>';
+    var groupRow = '<tr class="country-row"><td colspan="12">'+esc(g.country)+' <span class="muted">('+g.rows.length+')</span></td></tr>';
     var rowsHtml = g.rows.map(function(r){
       var s = statusFor(r.t.attainment);
       return '<tr data-dist="'+esc(r.id)+'">'+
         '<td>'+esc(r.name)+'</td>'+
+        '<td>'+esc(r.country||t('dash'))+'</td>'+
         '<td class="num">'+fmtInt(r.t.forecastQty)+'</td>'+
         '<td class="num">'+fmtInt(r.t.actualQty)+'</td>'+
         '<td class="num">'+fmtPct(r.t.attainment)+'</td>'+
@@ -1463,29 +1495,53 @@ function wireDistributorView(distId){
 }
 
 /* ================================ DATA ENTRY =============================== */
+function entryCountryOptions(list){
+  var set = {};
+  list.forEach(function(x){ set[x.country || 'Other'] = true; });
+  return Object.keys(set).sort(function(a,b){ return a.localeCompare(b); });
+}
+function distributorsForCountry(list, country){
+  if(country==='all') return list;
+  return list.filter(function(x){ return (x.country||'Other')===country; });
+}
 function renderEntryView(){
   var user = SESSION.user;
   var allowedNames = assignedDistributorList(user);
-  var allowed = STATE.distributors.filter(function(d){ return allowedNames.indexOf(d.name)>-1; }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+  var allowedAll = STATE.distributors.filter(function(d){ return allowedNames.indexOf(d.name)>-1; }).sort(function(a,b){ return a.name.localeCompare(b.name); });
+
+  var countryOpts = entryCountryOptions(allowedAll);
+  if(SESSION.entryCountry !== 'all' && countryOpts.indexOf(SESSION.entryCountry)===-1){ SESSION.entryCountry = 'all'; }
+  var allowed = distributorsForCountry(allowedAll, SESSION.entryCountry);
+
   if(!SESSION.entryDist || !allowed.some(function(d){return d.id===SESSION.entryDist;})){
     SESSION.entryDist = allowed.length ? allowed[0].id : null;
   }
   var d = STATE.distributors.find(function(x){ return x.id===SESSION.entryDist; });
 
   var body = ''+
-    topbar(t('topbar_entryTitle'), user.role==='entry' ? t('topbar_entrySubAssigned',{count:allowed.length, s:allowed.length===1?'':'s'}) : t('topbar_entrySubAll'))+
+    topbar(t('topbar_entryTitle'), user.role==='entry' ? t('topbar_entrySubAssigned',{count:allowedAll.length, s:allowedAll.length===1?'':'s'}) : t('topbar_entrySubAll'))+
     '<div class="content">';
+
+  if(allowedAll.length > 1){
+    body += '<div class="form-grid" style="margin-bottom:14px; max-width:260px;">'+
+      '<div class="field"><label>'+t('table_country')+'</label><select id="entry-country-select">'+
+        '<option value="all"'+(SESSION.entryCountry==='all'?' selected':'')+'>'+esc(t('table_allCountries'))+'</option>'+
+        countryOpts.map(function(c){ return '<option value="'+esc(c)+'"'+(SESSION.entryCountry===c?' selected':'')+'>'+esc(c)+'</option>'; }).join('')+
+      '</select></div>'+
+    '</div>';
+  }
 
   if(!d){
     return body + '<div class="empty-state">'+icon('alert')+'<div>'+t('entry_noAssigned')+'</div></div></div>';
   }
 
   body += '<div class="tabs" style="margin-bottom:18px;">'+
-    '<button class="tab'+(SESSION.entryMode==='article'?'':' active')+'" data-entrymode="dist">'+t('entry_byDistributor')+'</button>'+
+    '<button class="tab'+(SESSION.entryMode==='dist'?' active':'')+'" data-entrymode="dist">'+t('entry_byDistributor')+'</button>'+
     '<button class="tab'+(SESSION.entryMode==='article'?' active':'')+'" data-entrymode="article">'+t('entry_byArticle')+'</button>'+
+    '<button class="tab'+(SESSION.entryMode==='import'?' active':'')+'" data-entrymode="import">'+t('entry_importTab')+'</button>'+
   '</div>';
 
-  body += SESSION.entryMode==='article' ? renderArticleEntry(d, allowed) : renderDistEntry(d, allowed);
+  body += SESSION.entryMode==='article' ? renderArticleEntry(d, allowed) : (SESSION.entryMode==='import' ? renderImportEntry(d, allowed) : renderDistEntry(d, allowed));
   body += recentActivityCard();
   body += '</div>';
   return body;
@@ -1600,6 +1656,241 @@ function renderArticleEntry(d, allowed){
 
   return html;
 }
+/* ============================ EXCEL IMPORT (data entry) =================== */
+/* Transient, per-page state for the "Excel import" entry tab — deliberately
+   NOT part of STATE (never saved to the backend) or SESSION (never persisted
+   to localStorage): it's just the in-progress parse/preview of a file the
+   user picked, cleared as soon as they confirm, cancel, switch distributor,
+   or log out. { distId, fileName, headers:[...], dataRows:[[...],...], mapping:[...] } */
+var IMPORT_STATE = null;
+
+function normalizeStr(s){
+  return String(s==null?'':s)
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g,' ')
+    .trim();
+}
+var IMPORT_NAME_ALIASES = ['article','produit','product','name','nom','designation','libelle','item','description'];
+var IMPORT_CODE_ALIASES = ['code','sku','reference','ref','codearticle'];
+var IMPORT_FORECAST_ALIASES = ['forecast','prevision','previsionnel','objectif','target','budget','prevu','plan'];
+var IMPORT_ACTUAL_ALIASES = ['actual','reel','realise','vente','ventes','sold','sale','sales'];
+var IMPORT_REVENUE_ALIASES = ['revenue','ca','chiffre','montant','valeur','amount','price','prix'];
+var IMPORT_QTY_ALIASES = ['qty','quantity','qte','quantite','unit','unites','cts','carton','cartons','pcs','piece','pieces','vol','volume'];
+var IMPORT_MONTH_ALIASES = {
+  Jan:['jan','janv','janvier','january'], Feb:['feb','fev','fevrier','february'], Mar:['mar','mars','march'],
+  Apr:['apr','avr','avril','april'], May:['may','mai'], Jun:['jun','juin','june'],
+  Jul:['jul','juil','juillet','july'], Aug:['aug','aout','august'], Sep:['sep','sept','septembre','september'],
+  Oct:['oct','octobre','october'], Nov:['nov','novembre','november'], Dec:['dec','decembre','december']
+};
+function importTokenMatch(norm, aliases){
+  var tokens = norm.split(' ');
+  return tokens.some(function(tok){
+    return aliases.some(function(a){
+      if(tok===a) return true;
+      // allow a token to match a slightly longer alias it's the start of (plurals, suffixes:
+      // "ventes" vs "vente", "objectifs" vs "objectif") — but only once both sides are long
+      // enough that a short abbreviation (e.g. "ca") can't accidentally prefix-match an
+      // unrelated longer word (e.g. "cartons"), which is what caused a real misclassification
+      // ("CA Réalisé" being read as a quantity column) during QA.
+      if(tok.length>=3 && a.length>=3 && tok.indexOf(a)===0) return true;
+      return false;
+    });
+  });
+}
+function quarterFlatKey(prefix, suffix, qn){
+  if(prefix==='fc' && suffix==='qty') return 't'+qn+'_fc';
+  if(prefix==='ac' && suffix==='qty') return 't'+qn+'_qty';
+  if(prefix==='ac' && suffix==='ca') return 't'+qn+'_ca';
+  return null; // no flat "forecast revenue" baseline exists at quarter level in this schema
+}
+/* Best-effort guess at what a raw column header maps to. Never trusted blindly —
+   renderImportPreview() always shows this as an editable dropdown per column so
+   the person doing the import reviews and corrects it before anything is saved. */
+function classifyHeader(raw){
+  var norm = normalizeStr(raw);
+  if(!norm) return 'skip';
+  if(importTokenMatch(norm, IMPORT_CODE_ALIASES)) return 'code';
+  if(importTokenMatch(norm, IMPORT_NAME_ALIASES)) return 'name';
+
+  var month = null;
+  Object.keys(IMPORT_MONTH_ALIASES).some(function(m){
+    var hit = IMPORT_MONTH_ALIASES[m].some(function(a){ return new RegExp('\\b'+a).test(norm); });
+    if(hit){ month = m; return true; }
+    return false;
+  });
+  var qm = /\b[tq]\s?([1-4])\b/.exec(norm) || /trimestre\s?([1-4])/.exec(norm) || /quarter\s?([1-4])/.exec(norm);
+  var quarterNum = qm ? qm[1] : null;
+  if(!month && !quarterNum) return 'skip';
+
+  var isForecast = importTokenMatch(norm, IMPORT_FORECAST_ALIASES);
+  var prefix = isForecast ? 'fc' : 'ac'; // default to actual for a bare month/quarter column
+  var isRevenue = importTokenMatch(norm, IMPORT_REVENUE_ALIASES);
+  var isQty = importTokenMatch(norm, IMPORT_QTY_ALIASES);
+  var suffix = (isRevenue && !isQty) ? 'ca' : 'qty'; // default to qty when ambiguous
+
+  if(quarterNum && !quarterFlatKey(prefix, suffix, quarterNum)){ suffix = 'qty'; } // no flat forecast-revenue slot at quarter level
+
+  return prefix+'_'+suffix+'_'+(month ? 'M'+month : 'Q'+quarterNum);
+}
+function importFieldValueLabel(value){
+  if(value==='skip') return t('entry_importSkipCol');
+  if(value==='name') return t('entry_articleName');
+  if(value==='code') return t('entry_articleCode');
+  var mm = /^(fc|ac)_(qty|ca)_M(.+)$/.exec(value);
+  if(mm) return monthLabel(mm[3])+' — '+(mm[1]==='fc'?t('entry_metric_fc'):t('entry_metric_ac'))+' '+(mm[2]==='qty'?t('entry_metric_qty'):t('entry_metric_ca'));
+  var qm = /^(fc|ac)_(qty|ca)_Q([1-4])$/.exec(value);
+  if(qm) return 'T'+qm[3]+' — '+(qm[1]==='fc'?t('entry_metric_fc'):t('entry_metric_ac'))+' '+(qm[2]==='qty'?t('entry_metric_qty'):t('entry_metric_ca'));
+  return value;
+}
+function importFieldOptionsHtml(selected){
+  function opt(v){ return '<option value="'+v+'"'+(v===selected?' selected':'')+'>'+esc(importFieldValueLabel(v))+'</option>'; }
+  var html = opt('skip');
+  html += '<optgroup label="'+esc(t('entry_importArticleGroup'))+'">'+opt('name')+opt('code')+'</optgroup>';
+  MONTHS.forEach(function(m){
+    html += '<optgroup label="'+esc(monthLabel(m))+'">'+['fc_qty','ac_qty','fc_ca','ac_ca'].map(function(k){ return opt(k+'_M'+m); }).join('')+'</optgroup>';
+  });
+  QUARTERS.forEach(function(q){
+    var qn = q.slice(1);
+    html += '<optgroup label="'+esc(q)+'">'+['fc_qty','ac_qty','ac_ca'].map(function(k){ return opt(k+'_Q'+qn); }).join('')+'</optgroup>';
+  });
+  return html;
+}
+function renderImportEntry(d, allowed){
+  var distOpts = allowed.map(function(x){ return '<option value="'+x.id+'"'+(x.id===d.id?' selected':'')+'>'+esc(x.name)+'</option>'; }).join('');
+  var html = '<div class="form-grid" style="margin-bottom:16px; max-width:340px;">'+
+    '<div class="field"><label>'+t('entry_distributor')+'</label><select id="entry-import-dist-select">'+distOpts+'</select></div>'+
+  '</div>';
+
+  html += '<div class="card card-pad" style="max-width:640px; margin-bottom:18px;">'+
+    '<div class="chart-title" style="margin-bottom:4px;">'+t('entry_importTitle')+'</div>'+
+    '<div class="chart-caption" style="margin-bottom:14px;">'+t('entry_importHint')+'</div>'+
+    '<label class="btn btn-sm" for="import-file-input" style="display:inline-flex; align-items:center; gap:6px; cursor:pointer;">'+icon('box')+t('entry_importChoose')+'</label>'+
+    '<input type="file" id="import-file-input" accept=".xlsx,.xls,.csv" style="display:none">'+
+    (IMPORT_STATE && IMPORT_STATE.distId===d.id && IMPORT_STATE.fileName ? '<div class="hint" style="margin-top:10px;">'+esc(IMPORT_STATE.fileName)+' — '+IMPORT_STATE.dataRows.length+' '+t('entry_importRowsFound')+'</div>' : '')+
+  '</div>';
+
+  if(IMPORT_STATE && IMPORT_STATE.distId===d.id && IMPORT_STATE.headers){
+    html += renderImportPreview();
+  }
+  return html;
+}
+function renderImportPreview(){
+  var st = IMPORT_STATE;
+  var noNameMapped = st.mapping.indexOf('name') === -1;
+  var previewRows = st.dataRows.slice(0,6);
+  var mapRowHtml = '<tr>'+st.headers.map(function(h,i){
+    return '<th style="min-width:150px; vertical-align:top;"><div style="font-weight:700; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:150px;" title="'+esc(h)+'">'+esc(h||('#'+(i+1)))+'</div>'+
+      '<select data-import-col="'+i+'" style="width:100%; font-size:11.5px; padding:4px 6px; border-radius:6px; border:1px solid var(--border); background:var(--surface-2); color:var(--text);">'+importFieldOptionsHtml(st.mapping[i])+'</select>'+
+    '</th>';
+  }).join('')+'</tr>';
+  var bodyHtml = previewRows.map(function(row){
+    return '<tr>'+st.headers.map(function(h,i){ return '<td class="num" style="font-size:11.5px;">'+esc(row[i]==null?'':row[i])+'</td>'; }).join('')+'</tr>';
+  }).join('');
+  return '<div class="card card-pad" style="max-width:100%; margin-bottom:18px;">'+
+    '<div class="chart-title" style="margin-bottom:4px;">'+t('entry_importPreviewTitle')+'</div>'+
+    '<div class="chart-caption" style="margin-bottom:10px;">'+t('entry_importPreviewHint')+'</div>'+
+    (noNameMapped ? '<div class="hint" style="color:var(--critical); margin-bottom:10px; display:flex; align-items:center; gap:6px;">'+icon('alert')+' '+t('entry_importNoNameCol')+'</div>' : '')+
+    '<div class="scroll-x"><table><thead>'+mapRowHtml+'</thead><tbody>'+bodyHtml+'</tbody></table></div>'+
+    (st.dataRows.length>previewRows.length ? '<div class="hint" style="margin-top:8px;">'+t('entry_importMoreRows',{count:st.dataRows.length-previewRows.length})+'</div>' : '')+
+    '<div style="display:flex; gap:10px; margin-top:16px;">'+
+      '<button class="btn btn-primary" id="import-confirm-btn"'+(noNameMapped?' disabled':'')+'>'+icon('save')+t('entry_importConfirm')+'</button>'+
+      '<button class="btn" id="import-cancel-btn">'+t('cancel')+'</button>'+
+    '</div>'+
+  '</div>';
+}
+async function handleImportFile(file, distId){
+  try{
+    var buf = await file.arrayBuffer();
+    var wb = XLSX.read(buf, { type:'array' });
+    var sheetName = wb.SheetNames[0];
+    var sheet = wb.Sheets[sheetName];
+    var rows = XLSX.utils.sheet_to_json(sheet, { header:1, defval:null, blankrows:false });
+    if(!rows || !rows.length) throw new Error('empty');
+    var headers = rows[0].map(function(h){ return h==null ? '' : String(h).trim(); });
+    var dataRows = rows.slice(1).filter(function(r){ return r.some(function(c){ return c!=null && String(c).trim()!==''; }); });
+    var mapping = headers.map(function(h){ return classifyHeader(h); });
+    IMPORT_STATE = { distId: distId, fileName: file.name, headers: headers, dataRows: dataRows, mapping: mapping };
+  }catch(err){
+    IMPORT_STATE = null;
+    toast('err', t('entry_importParseError'));
+  }
+  setView('entry');
+}
+function buildImportRowObject(rawRow, mapping){
+  var obj = { name:null, code:null, months:{}, quarterFlat:{} };
+  mapping.forEach(function(field, i){
+    if(!field || field==='skip') return;
+    var raw = rawRow[i];
+    if(field==='name'){ obj.name = raw==null ? null : String(raw).trim(); return; }
+    if(field==='code'){ obj.code = raw==null ? null : String(raw).trim(); return; }
+    var num = (raw===null || raw===undefined || raw==='') ? null : Number(raw);
+    if(num!=null && isNaN(num)) num = null;
+    var mm = /^(fc|ac)_(qty|ca)_M(.+)$/.exec(field);
+    if(mm){
+      var mo = mm[3];
+      if(!obj.months[mo]) obj.months[mo] = {};
+      obj.months[mo][(mm[1]==='fc'?'forecast_':'actual_')+mm[2]] = num;
+      return;
+    }
+    var qm = /^(fc|ac)_(qty|ca)_Q([1-4])$/.exec(field);
+    if(qm){
+      var flatKey = quarterFlatKey(qm[1], qm[2], qm[3]);
+      if(flatKey) obj.quarterFlat[flatKey] = num;
+    }
+  });
+  return obj;
+}
+function applyImportRowToArticle(article, built){
+  if(built.code!=null && built.code!==''){ article.code = built.code; }
+  if(!article.months) article.months = {};
+  Object.keys(built.months).forEach(function(mo){
+    if(!article.months[mo]) article.months[mo] = {};
+    Object.assign(article.months[mo], built.months[mo]);
+  });
+  Object.keys(built.quarterFlat).forEach(function(k){ article[k] = built.quarterFlat[k]; });
+}
+/* Matches by code first (trimmed, case-insensitive), falling back to name —
+   so re-importing the same or an updated file merges into existing articles
+   instead of creating duplicates. */
+function mergeImportedArticles(distId, builtRows){
+  var list = (STATE.skuByDistributor[distId] || []).slice();
+  var created = 0, updated = 0;
+  builtRows.forEach(function(built){
+    if(!built.name) return;
+    var codeKey = (built.code!=null && built.code!=='') ? String(built.code).trim().toLowerCase() : null;
+    var nameKey = String(built.name).trim().toLowerCase();
+    var idx = -1;
+    if(codeKey) idx = list.findIndex(function(a){ return a.code!=null && String(a.code).trim().toLowerCase()===codeKey; });
+    if(idx===-1) idx = list.findIndex(function(a){ return String(a.name||'').trim().toLowerCase()===nameKey; });
+    if(idx>-1){
+      applyImportRowToArticle(list[idx], built);
+      updated++;
+    } else {
+      var art = { name: built.name, code: built.code || null, months: {} };
+      applyImportRowToArticle(art, built);
+      list.push(art);
+      created++;
+    }
+  });
+  return { list: list, created: created, updated: updated };
+}
+function confirmImport(){
+  var st = IMPORT_STATE;
+  if(!st) return;
+  var d = STATE.distributors.find(function(x){ return x.id===st.distId; });
+  if(!d) return;
+  var builtRows = st.dataRows.map(function(row){ return buildImportRowObject(row, st.mapping); }).filter(function(b){ return b.name; });
+  if(!builtRows.length){ toast('err', t('entry_importNoNameCol')); return; }
+  var merged = mergeImportedArticles(st.distId, builtRows);
+  STATE.skuByDistributor[st.distId] = merged.list;
+  logAudit('article-import', d.name+' — '+t('entry_importAuditDetail',{created:merged.created, updated:merged.updated, file:st.fileName}));
+  var msg = t('entry_importSaved', {created:merged.created, updated:merged.updated, name:d.name});
+  IMPORT_STATE = null;
+  persistNow(msg);
+  setTimeout(function(){ setView('entry'); }, 50);
+}
+
 function numField(id, label, value){
   return '<div class="field"><label for="'+id+'">'+esc(label)+'</label><input type="number" step="any" id="'+id+'" value="'+(value==null?'':value)+'" placeholder="—"></div>';
 }
@@ -1622,6 +1913,11 @@ function wireEntryView(){
   var root = byId('root');
   on(root, 'click', '[data-entrymode]', function(e, el){
     setView('entry', { entryMode: el.getAttribute('data-entrymode') });
+  });
+
+  var countrySel = byId('entry-country-select');
+  if(countrySel) countrySel.addEventListener('change', function(){
+    setView('entry', { entryCountry: countrySel.value, entryDist: null, entryArticle: null, entryArticleQuery: '' });
   });
 
   /* By-distributor mode */
@@ -1706,6 +2002,24 @@ function wireEntryView(){
     persistNow(t('toast_articleSaved', {month:monthLabel(month), article:article.name}));
     setTimeout(function(){ setView('entry'); }, 50);
   });
+
+  /* Excel import mode */
+  var distSel3 = byId('entry-import-dist-select');
+  if(distSel3) distSel3.addEventListener('change', function(){ IMPORT_STATE = null; setView('entry', { entryDist: distSel3.value }); });
+  var fileInput = byId('import-file-input');
+  if(fileInput) fileInput.addEventListener('change', function(){
+    var file = fileInput.files && fileInput.files[0];
+    if(file) handleImportFile(file, SESSION.entryDist);
+  });
+  on(root, 'change', '[data-import-col]', function(e, el){
+    var idx = parseInt(el.getAttribute('data-import-col'),10);
+    if(IMPORT_STATE && IMPORT_STATE.mapping) IMPORT_STATE.mapping[idx] = el.value;
+    setView('entry');
+  });
+  var importConfirm = byId('import-confirm-btn');
+  if(importConfirm) importConfirm.addEventListener('click', confirmImport);
+  var importCancel = byId('import-cancel-btn');
+  if(importCancel) importCancel.addEventListener('click', function(){ IMPORT_STATE = null; setView('entry'); });
 }
 
 /* ================================== MODAL =================================== */
