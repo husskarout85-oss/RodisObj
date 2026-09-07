@@ -1,0 +1,1260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rodis Filiales — Year 1 Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#f4f2ee; --panel:#ffffff; --ink:#22201c; --text-muted:#726f68;
+    --border:rgba(20,18,14,0.12); --grid:#eceae5; --baseline:#d8d5cd;
+    --accent:#2f6fdb; --accent-ink:#ffffff;
+    --good:#1f9d55; --warn:#c98a12; --bad:#d64545;
+    --good-bg:#e7f7ee; --warn-bg:#fdf3e0; --bad-bg:#fbe9e9;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;}
+  h1,h2,h3{font-family:'Sora',system-ui,sans-serif;margin:0 0 4px;}
+  button{font-family:inherit;cursor:pointer;}
+  input,select,textarea{font-family:inherit;font-size:14px;}
+  a{color:var(--accent);}
+  .hidden{display:none !important;}
+
+  /* ---------- Login ---------- */
+  #login-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:24px;}
+  .login-box{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:32px;width:100%;max-width:360px;box-shadow:0 8px 30px rgba(0,0,0,0.06);}
+  .login-box h1{font-size:22px;margin-bottom:2px;}
+  .login-box .sub{color:var(--text-muted);font-size:13px;margin-bottom:20px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--text-muted);margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em;}
+  .field input,.field select,.field textarea{width:100%;padding:9px 11px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--ink);}
+  .field textarea{resize:vertical;min-height:60px;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:#fff;color:var(--ink);font-weight:600;font-size:13px;}
+  .btn:hover{border-color:var(--accent);}
+  .btn-primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+  .btn-primary:hover{opacity:.92;}
+  .btn-danger{color:var(--bad);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:5px 10px;font-size:12px;}
+  #login-error{color:var(--bad);font-size:12.5px;margin-top:10px;display:none;}
+  #login-error.show{display:block;}
+  .lang-switch{display:flex;gap:6px;}
+  .lang-switch button{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:#fff;font-size:12px;font-weight:700;}
+  .lang-switch button.active{background:var(--ink);color:#fff;border-color:var(--ink);}
+  .login-creds-hint{font-size:11.5px;color:var(--text-muted);text-align:center;max-width:320px;}
+
+  /* ---------- App shell ---------- */
+  #app{display:none;min-height:100vh;}
+  #app.show{display:flex;}
+  .sidebar{width:220px;flex:0 0 220px;background:var(--ink);color:#f4f2ee;padding:20px 14px;display:flex;flex-direction:column;gap:18px;}
+  .brand{font-family:'Sora';font-weight:800;font-size:16px;letter-spacing:.02em;}
+  .brand small{display:block;font-family:'IBM Plex Sans';font-weight:500;font-size:11px;opacity:.65;margin-top:2px;}
+  .navitem{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;color:#e9e7e1;text-decoration:none;font-size:13.5px;font-weight:600;cursor:pointer;}
+  .navitem:hover{background:rgba(255,255,255,.08);}
+  .navitem.active{background:rgba(255,255,255,.16);}
+  .navlist{display:flex;flex-direction:column;gap:2px;}
+  .sidebar .lang-switch{margin-top:auto;}
+  .sidebar .lang-switch button{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.18);}
+  .sidebar .lang-switch button.active{background:#fff;color:var(--ink);}
+  .userbox{font-size:12px;opacity:.75;line-height:1.5;}
+  .userbox b{opacity:1;display:block;color:#fff;}
+  #logout-btn{margin-top:8px;background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.18);}
+
+  .main{flex:1;padding:26px 30px;max-width:1280px;}
+  .pagehead{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px;}
+  .pagehead h2{font-size:21px;}
+  .crumb{color:var(--text-muted);font-size:12.5px;margin-bottom:4px;}
+  .crumb a{cursor:pointer;text-decoration:underline;}
+
+  .kpirow{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:20px;}
+  .kpi{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+  .kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-muted);font-weight:700;margin-bottom:6px;}
+  .kpi-value{font-family:'Sora';font-size:21px;font-weight:700;}
+  .kpi-sub{font-size:11.5px;color:var(--text-muted);margin-top:3px;}
+
+  .panel{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;margin-bottom:18px;}
+  .panel h3{font-size:14.5px;margin-bottom:12px;}
+
+  .subcards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+  .subcard{background:var(--panel);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;cursor:pointer;transition:border-color .12s;}
+  .subcard:hover{border-color:var(--accent);}
+  .subcard h4{font-size:15.5px;margin-bottom:8px;}
+  .subcard .row{display:flex;justify-content:space-between;font-size:12.5px;color:var(--text-muted);margin-top:4px;}
+  .badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .badge.good{background:var(--good-bg);color:var(--good);}
+  .badge.warn{background:var(--warn-bg);color:var(--warn);}
+  .badge.bad{background:var(--bad-bg);color:var(--bad);}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--grid);}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{font-size:11px;text-transform:uppercase;color:var(--text-muted);font-weight:700;letter-spacing:.02em;}
+  tbody tr:hover{background:var(--grid);}
+  td input{width:90px;padding:5px 7px;border:1px solid var(--border);border-radius:6px;text-align:right;}
+  .table-wrap{overflow-x:auto;}
+
+  .chart-wrap{overflow-x:auto;}
+  .barchart{display:flex;align-items:flex-end;gap:10px;height:180px;padding-top:10px;}
+  .barchart .bargroup{display:flex;flex-direction:column;align-items:center;gap:4px;flex:0 0 auto;width:44px;}
+  .barchart .bars{display:flex;align-items:flex-end;gap:3px;height:140px;}
+  .barchart .bar{width:16px;border-radius:3px 3px 0 0;background:var(--baseline);}
+  .barchart .bar.actual.good{background:var(--good);}
+  .barchart .bar.actual.warn{background:var(--warn);}
+  .barchart .bar.actual.bad{background:var(--bad);}
+  .barchart .bar.plan{background:var(--grid);border:1px solid var(--baseline);}
+  .barchart .mlabel{font-size:10px;color:var(--text-muted);}
+  .legend{display:flex;gap:14px;font-size:11.5px;color:var(--text-muted);margin-top:6px;}
+  .legend span{display:inline-flex;align-items:center;gap:5px;}
+  .legend i{width:10px;height:10px;border-radius:3px;display:inline-block;}
+
+  .gauge-wrap{margin-top:8px;}
+  .gauge{height:8px;background:var(--grid);border-radius:6px;overflow:hidden;}
+  .gauge>div{height:100%;}
+  .gauge.good>div{background:var(--good);}
+  .gauge.warn>div{background:var(--warn);}
+  .gauge.bad>div{background:var(--bad);}
+  .gauge-label{display:flex;justify-content:space-between;font-size:11.5px;color:var(--text-muted);margin-top:4px;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:900px){.grid2{grid-template-columns:1fr;} .sidebar{width:64px;flex-basis:64px;} .sidebar .navitem span.lbl{display:none;} .brand small,.userbox{display:none;}}
+
+  .toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:14px;}
+  .toolbar label{font-size:12px;color:var(--text-muted);font-weight:600;}
+  .toolbar select,.toolbar input[type=date]{padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:#fff;}
+
+  .hire-row,.mkt-row{display:flex;gap:8px;align-items:center;padding:7px 0;border-bottom:1px solid var(--grid);flex-wrap:wrap;}
+  .hire-row:last-child,.mkt-row:last-child{border-bottom:none;}
+  .status-pill{padding:2px 9px;border-radius:20px;font-size:11px;font-weight:700;}
+  .status-pill.planned{background:var(--grid);color:var(--text-muted);}
+  .status-pill.in_progress{background:var(--warn-bg);color:var(--warn);}
+  .status-pill.hired{background:var(--good-bg);color:var(--good);}
+
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;font-size:13px;box-shadow:0 6px 20px rgba(0,0,0,.2);opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:200;}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px);}
+
+  .modal-bg{position:fixed;inset:0;background:rgba(20,18,14,.4);display:flex;align-items:center;justify-content:center;z-index:100;}
+  .modal{background:#fff;border-radius:var(--radius);padding:22px 24px;width:100%;max-width:420px;max-height:86vh;overflow:auto;}
+  .modal h3{margin-bottom:14px;}
+  .modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:16px;}
+  .access-grid{display:grid;grid-template-columns:1fr 110px;gap:6px 10px;align-items:center;font-size:12.5px;margin-top:6px;}
+
+  .conn-banner{background:var(--warn-bg);color:var(--warn);padding:8px 14px;border-radius:8px;font-size:12.5px;margin-bottom:14px;display:none;}
+  .conn-banner.show{display:block;}
+
+  .footer-stamp{color:var(--text-muted);font-size:11px;margin-top:24px;}
+  .muted{color:var(--text-muted);}
+  .actlog{max-height:280px;overflow:auto;font-size:12px;}
+  .actlog .row{display:flex;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--grid);gap:10px;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="lang-switch" id="login-lang-switch">
+    <button data-lang="en" class="active">EN</button>
+    <button data-lang="fr">FR</button>
+  </div>
+  <div class="login-box">
+    <h1 data-i18n="loginTitle">Rodis Filiales</h1>
+    <div class="sub" data-i18n="loginSub">Year 1 plan dashboard</div>
+    <form id="login-form">
+      <div class="field">
+        <label data-i18n="username">Username</label>
+        <input id="li-user" autocomplete="username" required>
+      </div>
+      <div class="field">
+        <label data-i18n="password">Password</label>
+        <input id="li-pass" type="password" autocomplete="current-password" required>
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" data-i18n="signIn">Sign in</button>
+      <div id="login-error"></div>
+    </form>
+  </div>
+  <div class="login-creds-hint" data-i18n="seedHint">First time? Sign in with admin / RodisAdmin2026, then create real accounts from the Admin tab.</div>
+</div>
+
+<div id="app">
+  <div class="sidebar">
+    <div class="brand">RODIS<small data-i18n="brandSub">Filiales — Year 1</small></div>
+    <div class="navlist" id="navlist">
+      <div class="navitem" data-nav="dashboard"><span>◧</span><span class="lbl" data-i18n="navOverview">Overview</span></div>
+      <div class="navitem" data-nav="bilan"><span>▤</span><span class="lbl" data-i18n="navBilan">Balance sheet</span></div>
+      <div class="navitem hidden" data-nav="admin" id="nav-admin"><span>⚙</span><span class="lbl" data-i18n="navAdmin">Admin</span></div>
+    </div>
+    <div style="flex:1"></div>
+    <div class="userbox"><b id="userbox-name"></b><span id="userbox-role"></span></div>
+    <button class="btn btn-block" id="logout-btn" data-i18n="signOut">Sign out</button>
+    <div class="lang-switch" id="app-lang-switch">
+      <button data-lang="en" class="active">EN</button>
+      <button data-lang="fr">FR</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="conn-banner" id="conn-banner"></div>
+    <div id="view-root"></div>
+    <div class="footer-stamp">Rodis Filiales · build v1-blank-start</div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div id="modal-root"></div>
+
+<script>
+'use strict';
+
+/* =========================================================================
+   CONFIG — edit GAS_URL after you deploy the Apps Script Web App.
+   ========================================================================= */
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbzgjp9ttbAWIWV7Uw6K6Hta2OqjNNE7rny6qiH6h94moXOGCoDgYLHYxSoXg7Lygo5c/exec';
+
+const SUBS = [
+  { id:'civ', name:"Côte d'Ivoire", cartons:true },
+  { id:'nga', name:'Eko Royale (Nigeria)', cartons:true, isNigeria:true },
+  { id:'tgo', name:'Togo', cartons:true },
+  { id:'mli', name:'Afriglow (Mali)', cartons:false },
+  { id:'cog', name:'Afroluxe (Congo-Brazzaville)', cartons:true },
+  { id:'ner', name:'ZAMA (Niger)', cartons:false }
+];
+function subById(id){ return SUBS.find(s=>s.id===id); }
+
+function monthKeys(){
+  const keys=[]; let y=2026, m=9;
+  for(let i=0;i<12;i++){ keys.push(y+'-'+String(m).padStart(2,'0')); m++; if(m>12){m=1;y++;} }
+  return keys;
+}
+const MONTHS = monthKeys();
+const MONTH_NAMES = {
+  en:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  fr:['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc']
+};
+function monthLabel(key, lang){
+  const [y,m]=key.split('-'); return MONTH_NAMES[lang][parseInt(m,10)-1]+' '+y.slice(2);
+}
+
+const CATS = {
+  asset:['stock','avarie','cash','bank','receivables','otherAssets'],
+  liability:['rodisPayable','otherPayables','otherLiabilities']
+};
+
+/* =========================================================================
+   I18N
+   ========================================================================= */
+const I18N = {
+en:{
+  loginTitle:'Rodis Filiales', loginSub:'Year 1 plan dashboard', username:'Username', password:'Password',
+  signIn:'Sign in', signOut:'Sign out', seedHint:'First time? Sign in with admin / RodisAdmin2026, then create real accounts from the Admin tab.',
+  brandSub:'Filiales — Year 1', navOverview:'Overview', navBilan:'Balance sheet', navAdmin:'Admin',
+  badCreds:'Incorrect username or password.', connErr:'Could not reach the server — showing the last data loaded. Changes will retry automatically.',
+  notConfigured:'GAS_URL is not set yet — running in local demo mode. Nothing you enter here is saved. Follow the setup guide to connect your Google Sheet.',
+  groupObjective:'Group objective', groupActual:'Group actual booked', groupAttainment:'Attainment', onTrackCount:'Subsidiaries on track',
+  creditExposure:'Credit exposure (raw, unconverted)', subsidiaries:'Subsidiaries',
+  objective:'Objective', actual:'Actual', ytd:'YTD', status:'Status', onTrack:'On track', atRisk:'At risk', behind:'Behind',
+  backToOverview:'← Overview', monthlyChart:'Plan vs actual — revenue', monthlyTable:'Monthly detail', month:'Month',
+  cartonsPlan:'Cartons (plan)', cartonsActual:'Cartons (actual)', revPlan:'Revenue plan', revActual:'Revenue actual',
+  distRevPlan:'Distributor revenue (plan)', distRevActual:'Distributor revenue (current)', save:'Save',
+  planNumbers:'Plan figures (editable)', annualObjective:'Annual objective (Rodis revenue)', annualDistPlan:'Annual distributor revenue plan',
+  hiringPlan:'Hiring plan', position:'Position', plannedMonth:'Planned month', hireStatus:'Status', hireDate:'Actual hire date',
+  addRow:'+ Add row', remove:'Remove', planned:'Planned', inProgress:'In progress', hired:'Hired',
+  marketing:'Marketing', mktBudget:'Budget breakdown (monthly)', activity:'Activity', monthlyBudget:'Monthly budget',
+  mktFollowup:'Spend follow-up', mktSpendCumulative:'Cumulative spend vs annual budget', annualBudget:'Annual budget',
+  creditLine:'Import credit line', ceiling:'Ceiling', outstanding:'Outstanding balance', margin:'Margin left',
+  notes:'Shared notes', nigeriaFx:'Nigeria exchange rate', fxHint:'Used ONLY to compute the FCFA read-out next to Nigeria\'s "Distributor revenue (current)" column. Nothing else on this dashboard is converted.',
+  fxLabel:'1 NGN =', fxSuffix:'FCFA',
+  bilanTitle:'Balance sheet', bilanSub:'Subsidiary', cutoff:'As of', totalAssets:'Total assets', totalLiabilities:'Total liabilities',
+  netPosition:'Net position', assets:'Assets', liabilities:'Liabilities', addEntry:'Add entry', category:'Category', date:'Date',
+  amount:'Balance as of this date', note:'Note', history:'Transaction history', enteredBy:'By', delete:'Delete',
+  cat_stock:'Stock valuation', cat_avarie:'Damaged/lost/expired stock', cat_cash:'Cash on hand', cat_bank:'Bank balance',
+  cat_receivables:'Client receivables', cat_otherAssets:'Other assets', cat_rodisPayable:'Payable to Rodis',
+  cat_otherPayables:'Other payables', cat_otherLiabilities:'Other liabilities',
+  dailyExpenses:'Daily expenses', expDate:'Date', expDesc:'Description', expAmount:'Amount', expTotal:'Total (as of cut-off)',
+  consolidated:'Consolidated view (admin)', noAccess:'You do not have access to this subsidiary.', viewOnly:'View only — you do not have edit access here.',
+  adminTitle:'Admin', users:'User accounts', addUser:'Add user', displayName:'Display name', role:'Role', admin:'Admin', user:'User',
+  access:'Per-subsidiary access', none:'None', view:'View', entry:'Entry', resetPw:'Reset password', newPw:'New password',
+  cancel:'Cancel', confirm:'Confirm', activityLog:'Activity log', cantDeleteSelf:"Can't delete your own account while signed in.",
+  savedOk:'Saved.', deleteUser:'Delete user', selectSub:'Select a subsidiary', noSubsAccess:'You have not been given access to any subsidiary yet — ask an admin.'
+},
+fr:{
+  loginTitle:'Rodis Filiales', loginSub:'Tableau de bord — Plan Année 1', username:"Nom d'utilisateur", password:'Mot de passe',
+  signIn:'Se connecter', signOut:'Déconnexion', seedHint:"Première fois ? Connectez-vous avec admin / RodisAdmin2026, puis créez de vrais comptes depuis l'onglet Admin.",
+  brandSub:'Filiales — Année 1', navOverview:'Vue d\'ensemble', navBilan:'Bilan', navAdmin:'Admin',
+  badCreds:'Identifiant ou mot de passe incorrect.', connErr:'Impossible de joindre le serveur — affichage des dernières données chargées. Les modifications seront retentées automatiquement.',
+  notConfigured:"GAS_URL n'est pas encore configuré — mode démo local. Rien de ce que vous saisissez ici n'est sauvegardé. Suivez le guide d'installation pour connecter votre Google Sheet.",
+  groupObjective:'Objectif groupe', groupActual:'Réalisé groupe', groupAttainment:'Taux de réalisation', onTrackCount:'Filiales dans les objectifs',
+  creditExposure:'Exposition crédit (brut, non converti)', subsidiaries:'Filiales',
+  objective:'Objectif', actual:'Réalisé', ytd:'Cumul', status:'Statut', onTrack:'Dans les objectifs', atRisk:'À risque', behind:'En retard',
+  backToOverview:"← Vue d'ensemble", monthlyChart:'Plan vs réalisé — chiffre d\'affaires', monthlyTable:'Détail mensuel', month:'Mois',
+  cartonsPlan:'Cartons (plan)', cartonsActual:'Cartons (réalisé)', revPlan:"CA plan", revActual:'CA réalisé',
+  distRevPlan:'CA distributeur (plan)', distRevActual:'CA distributeur (actuel)', save:'Enregistrer',
+  planNumbers:'Chiffres du plan (modifiables)', annualObjective:'Objectif annuel (CA Rodis)', annualDistPlan:'Plan annuel CA distributeur',
+  hiringPlan:"Plan de recrutement", position:'Poste', plannedMonth:'Mois prévu', hireStatus:'Statut', hireDate:"Date d'embauche réelle",
+  addRow:'+ Ajouter une ligne', remove:'Supprimer', planned:'Prévu', inProgress:'En cours', hired:'Embauché',
+  marketing:'Marketing', mktBudget:'Répartition du budget (mensuel)', activity:'Activité', monthlyBudget:'Budget mensuel',
+  mktFollowup:'Suivi des dépenses', mktSpendCumulative:'Dépense cumulée vs budget annuel', annualBudget:'Budget annuel',
+  creditLine:'Ligne de crédit import', ceiling:'Plafond', outstanding:'Solde en cours', margin:'Marge restante',
+  notes:'Notes partagées', nigeriaFx:'Taux de change Nigeria', fxHint:'Utilisé UNIQUEMENT pour calculer la valeur FCFA à côté de la colonne "CA distributeur (actuel)" du Nigeria. Rien d\'autre sur ce tableau de bord n\'est converti.',
+  fxLabel:'1 NGN =', fxSuffix:'FCFA',
+  bilanTitle:'Bilan', bilanSub:'Filiale', cutoff:'Au', totalAssets:'Total actif', totalLiabilities:'Total passif',
+  netPosition:'Position nette', assets:'Actif', liabilities:'Passif', addEntry:'Ajouter une écriture', category:'Catégorie', date:'Date',
+  amount:'Solde à cette date', note:'Note', history:'Historique des transactions', enteredBy:'Par', delete:'Supprimer',
+  cat_stock:'Valorisation du stock', cat_avarie:'Stock avarié/perdu/périmé', cat_cash:'Solde caisse', cat_bank:'Solde bancaire',
+  cat_receivables:'Crédit client', cat_otherAssets:'Autres actifs', cat_rodisPayable:'Dû à Rodis',
+  cat_otherPayables:'Autres fournisseurs à payer', cat_otherLiabilities:'Autres passifs',
+  dailyExpenses:'Dépenses quotidiennes', expDate:'Date', expDesc:'Description', expAmount:'Montant', expTotal:'Total (à la date de coupure)',
+  consolidated:'Vue consolidée (admin)', noAccess:"Vous n'avez pas accès à cette filiale.", viewOnly:"Lecture seule — vous n'avez pas les droits de modification ici.",
+  adminTitle:'Admin', users:'Comptes utilisateurs', addUser:'Ajouter un utilisateur', displayName:'Nom affiché', role:'Rôle', admin:'Admin', user:'Utilisateur',
+  access:'Accès par filiale', none:'Aucun', view:'Lecture', entry:'Saisie', resetPw:'Réinitialiser le mot de passe', newPw:'Nouveau mot de passe',
+  cancel:'Annuler', confirm:'Confirmer', activityLog:"Journal d'activité", cantDeleteSelf:'Impossible de supprimer votre propre compte pendant que vous êtes connecté.',
+  savedOk:'Enregistré.', deleteUser:'Supprimer utilisateur', selectSub:'Sélectionnez une filiale', noSubsAccess:"Vous n'avez encore accès à aucune filiale — contactez un administrateur."
+}
+};
+function t(key){ return (I18N[STATE.lang]&&I18N[STATE.lang][key]) || I18N.en[key] || key; }
+
+/* =========================================================================
+   STATE
+   ========================================================================= */
+const STATE = {
+  lang: localStorage.getItem('rf_lang') || 'en',
+  session: null,   // {username,password,displayName,role,access}
+  data: null,      // sanitized RUNTIME
+  view: 'dashboard',
+  activeSub: null,
+  bilanSub: null,
+  bilanCutoff: new Date().toISOString().slice(0,10),
+  connOk: true,
+  pollTimer: null
+};
+
+function saveSessionLocal(){
+  if(STATE.session){
+    localStorage.setItem('rf_session', JSON.stringify({username:STATE.session.username, password:STATE.session.password}));
+  } else {
+    localStorage.removeItem('rf_session');
+  }
+}
+function recallSessionLocal(){
+  try{ const raw = localStorage.getItem('rf_session'); return raw?JSON.parse(raw):null; }catch(e){ return null; }
+}
+
+/* =========================================================================
+   NETWORK
+   ========================================================================= */
+const DEMO_MODE = !GAS_URL || GAS_URL.indexOf('PASTE_YOUR') === 0;
+
+function withTimeout(promise, ms){
+  return Promise.race([
+    promise,
+    new Promise((_,rej)=>setTimeout(()=>rej(new Error('timeout')), ms))
+  ]);
+}
+
+async function postGAS(action, payload, attempt){
+  attempt = attempt || 1;
+  if(DEMO_MODE){
+    return demoHandle(action, payload);
+  }
+  const body = JSON.stringify(Object.assign({action}, payload));
+  try{
+    const res = await withTimeout(fetch(GAS_URL, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body
+    }), 20000);
+    const json = await res.json();
+    setConn(true);
+    return json;
+  }catch(err){
+    if(attempt < 2){
+      await new Promise(r=>setTimeout(r, 1200));
+      return postGAS(action, payload, attempt+1);
+    }
+    setConn(false);
+    return {ok:false, error:'network'};
+  }
+}
+
+function setConn(ok){
+  STATE.connOk = ok;
+  const b = document.getElementById('conn-banner');
+  if(!ok){ b.textContent = t('connErr'); b.classList.add('show'); }
+  else { b.classList.remove('show'); }
+}
+
+/* Local demo store used only when GAS_URL hasn't been configured, so the
+   page is still explorable before the Apps Script backend is wired up. */
+let DEMO_STORE = null;
+function demoSeed(){
+  const plan={}, actuals={}, hiring={}, marketingActivities={}, creditLine={}, bilanTx={}, notes={};
+  SUBS.forEach(s=>{
+    plan[s.id]={annualObjective:0, distRevenueAnnualPlan:0, monthly:{}};
+    actuals[s.id]={monthly:{}};
+    MONTHS.forEach(m=>{ plan[s.id].monthly[m]={cartonsPlan:0,revenuePlan:0,distRevenuePlan:0}; actuals[s.id].monthly[m]={cartonsActual:0,revenueActual:0,distRevenueActual:0}; });
+    hiring[s.id]=[]; marketingActivities[s.id]=[]; creditLine[s.id]={ceiling:0,outstanding:0}; bilanTx[s.id]=[]; notes[s.id]='';
+  });
+  return {users:{admin:{passwordPlain:'RodisAdmin2026', displayName:'Admin',role:'admin',access:{}}}, plan, actuals, hiring, marketingActivities, marketing:{}, creditLine, bilanTx, notes, fx:{ngnToXof:0}, activityLog:[]};
+}
+function demoSanitize(){
+  const copy = JSON.parse(JSON.stringify(DEMO_STORE));
+  const safeUsers = {};
+  Object.keys(copy.users||{}).forEach(u=>{
+    const rec = copy.users[u];
+    safeUsers[u] = {displayName:rec.displayName, role:rec.role, access:rec.access||{}};
+  });
+  copy.users = safeUsers;
+  return copy;
+}
+function demoHandle(action, payload){
+  if(!DEMO_STORE) DEMO_STORE = demoSeed();
+  if(action==='login'){
+    const rec = DEMO_STORE.users[payload.username];
+    if(rec && rec.passwordPlain===payload.password){
+      return {ok:true, user:{username:payload.username, displayName:rec.displayName, role:rec.role, access:rec.access||{}}, data:demoSanitize()};
+    }
+    return {ok:false, error:'Invalid username or password.'};
+  }
+  if(action==='sync'){ return {ok:true, data:demoSanitize()}; }
+  if(action==='save'){
+    if(payload.section==='fx') DEMO_STORE.fx = payload.value;
+    else DEMO_STORE[payload.section][payload.subId] = payload.value;
+    return {ok:true, data:demoSanitize()};
+  }
+  if(action==='adminUsers'){
+    const op = payload.op, p = payload.payload||{};
+    if(op==='add'){
+      if(!p.username || DEMO_STORE.users[p.username]) return {ok:false, error:'Username missing or already exists.'};
+      DEMO_STORE.users[p.username] = {passwordPlain:p.password||'ChangeMe2026', displayName:p.displayName||p.username, role:p.role==='admin'?'admin':'user', access:p.access||{}};
+    } else if(op==='update'){
+      const u = DEMO_STORE.users[p.username];
+      if(!u) return {ok:false, error:'User not found.'};
+      if(p.displayName!==undefined) u.displayName=p.displayName;
+      if(p.role!==undefined) u.role = p.role==='admin'?'admin':'user';
+      if(p.access!==undefined) u.access=p.access;
+    } else if(op==='delete'){
+      if(p.username===payload.username) return {ok:false, error:"You can't delete your own account while signed in."};
+      if(!DEMO_STORE.users[p.username]) return {ok:false, error:'User not found.'};
+      delete DEMO_STORE.users[p.username];
+    } else if(op==='resetPassword'){
+      const u2 = DEMO_STORE.users[p.username];
+      if(!u2) return {ok:false, error:'User not found.'};
+      u2.passwordPlain = p.newPassword||'ChangeMe2026';
+    } else {
+      return {ok:false, error:'Unknown op: '+op};
+    }
+    return {ok:true, data:demoSanitize()};
+  }
+  return {ok:false, error:'unknown'};
+}
+
+/* =========================================================================
+   FORMATTING / BUSINESS LOGIC
+   ========================================================================= */
+function fmtNum(n){
+  n = Number(n)||0;
+  return Math.round(n).toLocaleString('fr-FR').replace(/\u202f/g,' ');
+}
+function fmtMoney(n){ return fmtNum(n)+' FCFA'; }
+function pct(a,b){ if(!b) return 0; return (a/b)*100; }
+function statusFor(actual, plan){
+  const p = pct(actual, plan);
+  if(!plan) return 'behind';
+  if(p>=95) return 'good';
+  if(p>=80) return 'warn';
+  return 'bad';
+}
+function statusLabel(s){ return s==='good'?t('onTrack'):s==='warn'?t('atRisk'):t('behind'); }
+
+function subAccess(subId){
+  if(!STATE.session) return 'none';
+  if(STATE.session.role==='admin') return 'entry';
+  return (STATE.session.access||{})[subId] || 'none';
+}
+function accessibleSubs(){
+  return SUBS.filter(s=>subAccess(s.id)!=='none');
+}
+
+function planFor(subId){ return (STATE.data.plan||{})[subId] || {annualObjective:0,distRevenueAnnualPlan:0,monthly:{}}; }
+function actualsFor(subId){ return (STATE.data.actuals||{})[subId] || {monthly:{}}; }
+
+function ytdActualRevenue(subId){
+  const a = actualsFor(subId).monthly||{};
+  return MONTHS.reduce((sum,m)=> sum + (a[m]?a[m].revenueActual||0:0), 0);
+}
+function ytdPlanRevenueToDate(subId){
+  // Only counts months that have started (plan-to-date), consistent with monthly/cumulative status thresholds.
+  const p = planFor(subId).monthly||{};
+  const now = new Date();
+  return MONTHS.reduce((sum,m)=>{
+    const [y,mm]=m.split('-').map(Number);
+    const started = new Date(y, mm-1, 1) <= now;
+    return sum + (started ? (p[m]?p[m].revenuePlan||0:0) : 0);
+  },0);
+}
+function annualPlanRevenue(subId){
+  const p = planFor(subId).monthly||{};
+  return MONTHS.reduce((sum,m)=>sum+(p[m]?p[m].revenuePlan||0:0),0);
+}
+
+/* ---- Balance sheet (v17 snapshot semantics: latest entry on/before cutoff wins, never summed) ---- */
+function bilanBalance(subId, category, cutoff){
+  const txs = ((STATE.data.bilanTx||{})[subId]||[]).filter(tx=>tx.category===category && tx.kind!=='expense' && tx.date<=cutoff);
+  if(!txs.length) return 0;
+  txs.sort((a,b)=> a.date===b.date ? (a.ts-b.ts) : (a.date<b.date?-1:1));
+  return txs[txs.length-1].amount||0;
+}
+function bilanSnapshot(subId, cutoff){
+  const cat = {};
+  CATS.asset.concat(CATS.liability).forEach(c=>{ cat[c]=bilanBalance(subId,c,cutoff); });
+  const assets = CATS.asset.reduce((s,c)=>s+cat[c],0);
+  const liabilities = CATS.liability.reduce((s,c)=>s+cat[c],0);
+  return {cat, assets, liabilities, net:assets-liabilities};
+}
+function dailyExpenses(subId, cutoff){
+  return ((STATE.data.bilanTx||{})[subId]||[]).filter(tx=>tx.kind==='expense' && tx.date<=cutoff)
+    .sort((a,b)=> b.date===a.date ? (b.ts-a.ts) : (b.date<a.date?-1:1));
+}
+function dailyExpenseTotal(subId, cutoff){
+  return dailyExpenses(subId,cutoff).reduce((s,tx)=>s+Math.abs(tx.amount||0),0);
+}
+
+/* ---- Nigeria currency (v15: nothing converts except distributor-revenue-actual) ---- */
+function ngnToXof(){ return (STATE.data.fx||{}).ngnToXof || 0; }
+function distRevActualFcfa(sub, monthKey){
+  if(!sub.isNigeria) return null;
+  const a = actualsFor(sub.id).monthly[monthKey];
+  const val = a? (a.distRevenueActual||0) : 0;
+  return val * ngnToXof();
+}
+
+/* =========================================================================
+   NETWORK-BACKED SAVE
+   ========================================================================= */
+async function saveSection(subId, section, value){
+  const res = await postGAS('save', {username:STATE.session.username, password:STATE.session.password, subId, section, value});
+  if(res.ok){ STATE.data = res.data; toast(t('savedOk')); render(); }
+  else { toast(res.error==='network' ? t('connErr') : (res.error||'Error')); }
+  return res.ok;
+}
+async function saveFx(value){
+  const res = await postGAS('save', {username:STATE.session.username, password:STATE.session.password, section:'fx', value});
+  if(res.ok){ STATE.data = res.data; toast(t('savedOk')); render(); }
+  else { toast(res.error||'Error'); }
+}
+async function adminUsersOp(op, payload){
+  const res = await postGAS('adminUsers', {username:STATE.session.username, password:STATE.session.password, op, payload});
+  if(res.ok){ STATE.data = res.data; toast(t('savedOk')); render(); }
+  else { toast(res.error||'Error'); }
+  return res.ok;
+}
+
+let toastTimer=null;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2600);
+}
+
+/* =========================================================================
+   POLLING
+   ========================================================================= */
+function startPolling(){
+  stopPolling();
+  STATE.pollTimer = setInterval(async ()=>{
+    if(!STATE.session) return;
+    const active = document.activeElement;
+    const editing = active && (active.tagName==='INPUT' || active.tagName==='TEXTAREA' || active.tagName==='SELECT');
+    if(editing) return; // don't blow away an in-progress edit
+    const res = await postGAS('sync', {username:STATE.session.username, password:STATE.session.password});
+    if(res.ok){ STATE.data = res.data; render(); }
+  }, 15000);
+}
+function stopPolling(){ if(STATE.pollTimer) clearInterval(STATE.pollTimer); STATE.pollTimer=null; }
+
+/* =========================================================================
+   RENDER — shell
+   ========================================================================= */
+function applyI18nStatic(){
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.title = STATE.lang==='fr' ? 'Rodis Filiales — Plan Année 1' : 'Rodis Filiales — Year 1 Plan';
+}
+function setLang(lang){
+  STATE.lang = lang; localStorage.setItem('rf_lang', lang);
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.classList.toggle('active', b.getAttribute('data-lang')===lang));
+  applyI18nStatic();
+  render();
+}
+
+function showApp(show){
+  document.getElementById('login-screen').style.display = show?'none':'flex';
+  document.getElementById('app').classList.toggle('show', show);
+}
+
+function renderShell(){
+  document.querySelectorAll('.navitem').forEach(el=>el.classList.toggle('active', el.getAttribute('data-nav')===STATE.view));
+  document.getElementById('nav-admin').classList.toggle('hidden', !(STATE.session && STATE.session.role==='admin'));
+  document.getElementById('userbox-name').textContent = STATE.session ? STATE.session.displayName : '';
+  document.getElementById('userbox-role').textContent = STATE.session ? (STATE.session.role==='admin'?t('admin'):t('user')) : '';
+  if(DEMO_MODE){ setConn(true); document.getElementById('conn-banner').textContent = t('notConfigured'); document.getElementById('conn-banner').classList.add('show'); }
+}
+
+function render(){
+  if(!STATE.session){ return; }
+  renderShell();
+  const root = document.getElementById('view-root');
+  if(STATE.view==='dashboard') root.innerHTML = viewOverview();
+  else if(STATE.view==='subsidiary') root.innerHTML = viewSubsidiary(STATE.activeSub);
+  else if(STATE.view==='bilan') root.innerHTML = viewBilan();
+  else if(STATE.view==='admin') root.innerHTML = viewAdmin();
+  wireViewEvents();
+}
+
+/* =========================================================================
+   VIEW: Overview
+   ========================================================================= */
+function viewOverview(){
+  const subs = accessibleSubs();
+  if(!subs.length) return `<div class="panel">${t('noSubsAccess')}</div>`;
+
+  let groupObj=0, groupAct=0, onTrack=0, creditExp=0;
+  subs.forEach(s=>{
+    groupObj += planFor(s.id).annualObjective||0;
+    groupAct += ytdActualRevenue(s.id);
+    const st = statusFor(ytdActualRevenue(s.id), ytdPlanRevenueToDate(s.id));
+    if(st==='good') onTrack++;
+    creditExp += (STATE.data.creditLine[s.id]||{}).outstanding||0;
+  });
+  const attain = pct(groupAct, groupObj);
+
+  const cards = subs.map(s=>{
+    const st = statusFor(ytdActualRevenue(s.id), ytdPlanRevenueToDate(s.id));
+    return `<div class="subcard" data-open-sub="${s.id}">
+      <h4>${s.name}</h4>
+      <div class="row"><span>${t('objective')}</span><b>${fmtMoney(planFor(s.id).annualObjective||0)}</b></div>
+      <div class="row"><span>${t('actual')} (${t('ytd')})</span><b>${fmtMoney(ytdActualRevenue(s.id))}</b></div>
+      <div class="row"><span>${t('status')}</span><span class="badge ${st==='good'?'good':st==='warn'?'warn':'bad'}">${statusLabel(st)}</span></div>
+    </div>`;
+  }).join('');
+
+  return `
+  <div class="pagehead"><h2>${t('navOverview')}</h2></div>
+  <div class="kpirow">
+    <div class="kpi"><div class="kpi-label">${t('groupObjective')}</div><div class="kpi-value">${fmtMoney(groupObj)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('groupActual')}</div><div class="kpi-value">${fmtMoney(groupAct)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('groupAttainment')}</div><div class="kpi-value">${attain.toFixed(1)}%</div></div>
+    <div class="kpi"><div class="kpi-label">${t('onTrackCount')}</div><div class="kpi-value">${onTrack} / ${subs.length}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('creditExposure')}</div><div class="kpi-value">${fmtMoney(creditExp)}</div></div>
+  </div>
+  <h3 style="margin:6px 0 12px;">${t('subsidiaries')}</h3>
+  <div class="subcards">${cards}</div>`;
+}
+
+/* =========================================================================
+   VIEW: Subsidiary detail
+   ========================================================================= */
+function barChart(subId){
+  const p = planFor(subId).monthly, a = actualsFor(subId).monthly;
+  const maxV = Math.max(1, ...MONTHS.map(m=>Math.max(p[m]?.revenuePlan||0, a[m]?.revenueActual||0)));
+  const bars = MONTHS.map(m=>{
+    const plan = p[m]?.revenuePlan||0, act = a[m]?.revenueActual||0;
+    const st = statusFor(act, plan);
+    const ph = Math.round((plan/maxV)*140), ah = Math.round((act/maxV)*140);
+    return `<div class="bargroup">
+      <div class="bars">
+        <div class="bar plan" style="height:${ph}px" title="${t('revPlan')}: ${fmtMoney(plan)}"></div>
+        <div class="bar actual ${st}" style="height:${ah}px" title="${t('revActual')}: ${fmtMoney(act)}"></div>
+      </div>
+      <div class="mlabel">${monthLabel(m, STATE.lang)}</div>
+    </div>`;
+  }).join('');
+  return `<div class="chart-wrap"><div class="barchart">${bars}</div></div>
+    <div class="legend">
+      <span><i style="background:var(--baseline)"></i>${t('revPlan')}</span>
+      <span><i style="background:var(--good)"></i>${t('onTrack')}</span>
+      <span><i style="background:var(--warn)"></i>${t('atRisk')}</span>
+      <span><i style="background:var(--bad)"></i>${t('behind')}</span>
+    </div>`;
+}
+
+function monthlyTable(sub){
+  const p = planFor(sub.id).monthly, a = actualsFor(sub.id).monthly;
+  const editable = subAccess(sub.id)==='entry';
+  const rows = MONTHS.map(m=>{
+    const pm=p[m]||{}, am=a[m]||{};
+    const cartonsCells = sub.cartons ? `
+      <td>${fmtNum(pm.cartonsPlan||0)}</td>
+      <td>${editable?`<input type="number" data-m="${m}" data-f="cartonsActual" value="${am.cartonsActual||0}">`:fmtNum(am.cartonsActual||0)}</td>` : '';
+    const distActualCell = sub.isNigeria
+      ? `<td>${editable?`<input type="number" data-m="${m}" data-f="distRevenueActual" value="${am.distRevenueActual||0}">`:fmtNum(am.distRevenueActual||0)} <span class="muted">(NGN)</span><br><span class="muted">${fmtMoney(distRevActualFcfa(sub,m))} (FCFA)</span></td>`
+      : `<td>${editable?`<input type="number" data-m="${m}" data-f="distRevenueActual" value="${am.distRevenueActual||0}">`:fmtNum(am.distRevenueActual||0)}</td>`;
+    return `<tr>
+      <td>${monthLabel(m, STATE.lang)}</td>
+      ${cartonsCells}
+      <td>${fmtNum(pm.revenuePlan||0)}</td>
+      <td>${editable?`<input type="number" data-m="${m}" data-f="revenueActual" value="${am.revenueActual||0}">`:fmtNum(am.revenueActual||0)}</td>
+      <td>${fmtNum(pm.distRevenuePlan||0)}</td>
+      ${distActualCell}
+    </tr>`;
+  }).join('');
+  const cartonsHead = sub.cartons ? `<th>${t('cartonsPlan')}</th><th>${t('cartonsActual')}</th>` : '';
+  return `<div class="table-wrap"><table>
+    <thead><tr><th>${t('month')}</th>${cartonsHead}<th>${t('revPlan')}</th><th>${t('revActual')}</th><th>${t('distRevPlan')}</th><th>${t('distRevActual')}</th></tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  ${editable?`<div style="margin-top:10px;"><button class="btn btn-primary btn-sm" id="save-monthly">${t('save')}</button></div>`:''}`;
+}
+
+function planNumbersPanel(sub){
+  const editable = subAccess(sub.id)==='entry';
+  const plan = planFor(sub.id);
+  return `<div class="panel">
+    <h3>${t('planNumbers')}</h3>
+    <div class="grid2">
+      <div class="field"><label>${t('annualObjective')}</label>
+        <input id="plan-obj" type="number" value="${plan.annualObjective||0}" ${editable?'':'disabled'}></div>
+      <div class="field"><label>${t('annualDistPlan')}</label>
+        <input id="plan-distplan" type="number" value="${plan.distRevenueAnnualPlan||0}" ${editable?'':'disabled'}></div>
+    </div>
+    ${editable?`<button class="btn btn-sm" id="save-plan-numbers">${t('save')}</button>`:''}
+  </div>`;
+}
+
+function hiringPanel(sub){
+  const editable = subAccess(sub.id)==='entry';
+  const list = (STATE.data.hiring[sub.id]||[]);
+  const rows = list.map((h,i)=>`
+    <div class="hire-row" data-idx="${i}">
+      <input style="flex:2;min-width:110px;" data-f="position" value="${h.position||''}" placeholder="${t('position')}" ${editable?'':'disabled'}>
+      <select data-f="plannedMonth" ${editable?'':'disabled'}>${MONTHS.map(m=>`<option value="${m}" ${h.plannedMonth===m?'selected':''}>${monthLabel(m,STATE.lang)}</option>`).join('')}</select>
+      <select data-f="status" ${editable?'':'disabled'}>
+        <option value="planned" ${h.status==='planned'?'selected':''}>${t('planned')}</option>
+        <option value="in_progress" ${h.status==='in_progress'?'selected':''}>${t('inProgress')}</option>
+        <option value="hired" ${h.status==='hired'?'selected':''}>${t('hired')}</option>
+      </select>
+      <input type="date" data-f="actualHireDate" value="${h.actualHireDate||''}" ${editable?'':'disabled'}>
+      <span class="status-pill ${h.status||'planned'}">${h.status==='hired'?t('hired'):h.status==='in_progress'?t('inProgress'):t('planned')}</span>
+      ${editable?`<button class="btn btn-sm btn-danger" data-remove-hire="${i}">${t('remove')}</button>`:''}
+    </div>`).join('');
+  return `<div class="panel">
+    <h3>${t('hiringPlan')}</h3>
+    <div id="hiring-rows">${rows||`<div class="muted">—</div>`}</div>
+    ${editable?`<div style="margin-top:10px;display:flex;gap:8px;">
+      <button class="btn btn-sm" id="add-hire-row">${t('addRow')}</button>
+      <button class="btn btn-sm btn-primary" id="save-hiring">${t('save')}</button>
+    </div>`:''}
+  </div>`;
+}
+
+function marketingPanel(sub){
+  const editable = subAccess(sub.id)==='entry';
+  const items = (STATE.data.marketingActivities[sub.id]||[]);
+  const rows = items.map((it,i)=>`
+    <div class="mkt-row" data-idx="${i}">
+      <input style="flex:2;min-width:120px;" data-f="name" value="${it.name||''}" placeholder="${t('activity')}" ${editable?'':'disabled'}>
+      <input type="number" data-f="monthlyBudget" value="${it.monthlyBudget||0}" placeholder="${t('monthlyBudget')}" ${editable?'':'disabled'}>
+      ${editable?`<button class="btn btn-sm btn-danger" data-remove-mkt="${i}">${t('remove')}</button>`:''}
+    </div>`).join('');
+
+  // Follow-up: per-item cumulative spend vs annual budget as gauge.
+  const marketing = STATE.data.marketing||{};
+  const gauges = items.map((it,i)=>{
+    const annual = (it.monthlyBudget||0)*12;
+    let spent = 0;
+    MONTHS.forEach(m=>{ spent += marketing[`${sub.id}__${m}__${it.id}`]||0; });
+    const p = pct(spent, annual);
+    const cls = p>=88?'bad':p>=70?'warn':'good';
+    return `<div style="margin-bottom:12px;">
+      <div class="gauge-label"><span>${it.name}</span><span>${fmtMoney(spent)} / ${fmtMoney(annual)}</span></div>
+      <div class="gauge ${cls}"><div style="width:${Math.min(100,p)}%"></div></div>
+    </div>`;
+  }).join('') || `<div class="muted">—</div>`;
+
+  return `<div class="panel">
+    <h3>${t('marketing')} — ${t('mktBudget')}</h3>
+    <div id="mkt-rows">${rows||`<div class="muted">—</div>`}</div>
+    ${editable?`<div style="margin:10px 0;display:flex;gap:8px;">
+      <button class="btn btn-sm" id="add-mkt-row">${t('addRow')}</button>
+      <button class="btn btn-sm btn-primary" id="save-mkt-activities">${t('save')}</button>
+    </div>`:''}
+    <h3 style="margin-top:18px;">${t('mktFollowup')}</h3>
+    ${gauges}
+  </div>`;
+}
+
+function creditLinePanel(sub){
+  const editable = subAccess(sub.id)==='entry';
+  const cl = STATE.data.creditLine[sub.id]||{ceiling:0,outstanding:0};
+  const p = pct(cl.outstanding, cl.ceiling);
+  const cls = p>=88?'bad':p>=70?'warn':'good';
+  return `<div class="panel">
+    <h3>${t('creditLine')}</h3>
+    <div class="grid2">
+      <div class="field"><label>${t('ceiling')}</label><input id="cl-ceiling" type="number" value="${cl.ceiling||0}" ${editable?'':'disabled'}></div>
+      <div class="field"><label>${t('outstanding')}</label><input id="cl-outstanding" type="number" value="${cl.outstanding||0}" ${editable?'':'disabled'}></div>
+    </div>
+    <div class="gauge-wrap">
+      <div class="gauge ${cls}"><div style="width:${Math.min(100,p)}%"></div></div>
+      <div class="gauge-label"><span>${t('margin')}: ${fmtMoney(Math.max(0,(cl.ceiling||0)-(cl.outstanding||0)))}</span><span>${p.toFixed(0)}%</span></div>
+    </div>
+    ${editable?`<button class="btn btn-sm" style="margin-top:10px;" id="save-creditline">${t('save')}</button>`:''}
+  </div>`;
+}
+
+function notesPanel(sub){
+  const editable = subAccess(sub.id)==='entry';
+  return `<div class="panel">
+    <h3>${t('notes')}</h3>
+    <textarea id="notes-field" ${editable?'':'disabled'}>${STATE.data.notes[sub.id]||''}</textarea>
+    ${editable?`<button class="btn btn-sm" style="margin-top:8px;" id="save-notes">${t('save')}</button>`:''}
+  </div>`;
+}
+
+function nigeriaFxPanel(){
+  const isAdmin = STATE.session.role==='admin';
+  return `<div class="panel">
+    <h3>${t('nigeriaFx')}</h3>
+    <div class="muted" style="margin-bottom:10px;font-size:12.5px;">${t('fxHint')}</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <span>${t('fxLabel')}</span>
+      <input id="fx-rate" type="number" step="0.0001" value="${ngnToXof()}" style="width:120px;" ${isAdmin?'':'disabled'}>
+      <span>${t('fxSuffix')}</span>
+      ${isAdmin?`<button class="btn btn-sm" id="save-fx">${t('save')}</button>`:''}
+    </div>
+  </div>`;
+}
+
+function viewSubsidiary(subId){
+  const sub = subById(subId);
+  if(!sub || subAccess(subId)==='none') return `<div class="panel">${t('noAccess')}</div>`;
+  const st = statusFor(ytdActualRevenue(sub.id), ytdPlanRevenueToDate(sub.id));
+  const editable = subAccess(sub.id)==='entry';
+  return `
+  <div class="crumb"><a data-back-overview="1">${t('backToOverview')}</a></div>
+  <div class="pagehead"><h2>${sub.name}</h2><span class="badge ${st}">${statusLabel(st)}</span></div>
+  ${!editable?`<div class="conn-banner show" style="background:var(--grid);color:var(--text-muted);">${t('viewOnly')}</div>`:''}
+  <div class="kpirow">
+    <div class="kpi"><div class="kpi-label">${t('objective')}</div><div class="kpi-value">${fmtMoney(planFor(sub.id).annualObjective||0)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('actual')} (${t('ytd')})</div><div class="kpi-value">${fmtMoney(ytdActualRevenue(sub.id))}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('groupAttainment')}</div><div class="kpi-value">${pct(ytdActualRevenue(sub.id), ytdPlanRevenueToDate(sub.id)).toFixed(1)}%</div></div>
+  </div>
+  <div class="panel"><h3>${t('monthlyChart')}</h3>${barChart(sub.id)}</div>
+  <div class="panel"><h3>${t('monthlyTable')}</h3>${monthlyTable(sub)}</div>
+  ${planNumbersPanel(sub)}
+  ${sub.isNigeria ? nigeriaFxPanel() : ''}
+  <div class="grid2">
+    ${hiringPanel(sub)}
+    ${creditLinePanel(sub)}
+  </div>
+  ${marketingPanel(sub)}
+  ${notesPanel(sub)}
+  `;
+}
+
+/* =========================================================================
+   VIEW: Balance sheet
+   ========================================================================= */
+function viewBilan(){
+  const subs = accessibleSubs();
+  if(!subs.length) return `<div class="panel">${t('noSubsAccess')}</div>`;
+  if(!STATE.bilanSub || subAccess(STATE.bilanSub)==='none') STATE.bilanSub = subs[0].id;
+  const sub = subById(STATE.bilanSub);
+  const editable = subAccess(sub.id)==='entry';
+  const cutoff = STATE.bilanCutoff;
+  const snap = bilanSnapshot(sub.id, cutoff);
+
+  const catRow = (cat)=> `<tr><td>${t('cat_'+cat)}</td><td>${fmtMoney(snap.cat[cat])}</td></tr>`;
+
+  const txList = ((STATE.data.bilanTx[sub.id]||[]).filter(tx=>tx.kind!=='expense')).slice().sort((a,b)=>b.date===a.date?b.ts-a.ts:(b.date<a.date?-1:1));
+  const txRows = txList.map(tx=>`<tr>
+    <td>${tx.date}</td><td>${t('cat_'+tx.category)}</td><td>${fmtMoney(tx.amount)}</td><td>${tx.note||''}</td><td>${tx.enteredBy||''}</td>
+    ${editable?`<td><button class="btn btn-sm btn-danger" data-del-tx="${tx.id}">${t('delete')}</button></td>`:'<td></td>'}
+  </tr>`).join('') || `<tr><td colspan="6" class="muted">—</td></tr>`;
+
+  const allCats = CATS.asset.concat(CATS.liability);
+
+  const exp = dailyExpenses(sub.id, cutoff);
+  const expTotal = dailyExpenseTotal(sub.id, cutoff);
+  const expRows = exp.map(tx=>`<tr>
+    <td>${tx.date}</td><td>${tx.note||''}</td><td>${fmtMoney(Math.abs(tx.amount))}</td>
+    ${editable?`<td><button class="btn btn-sm btn-danger" data-del-tx="${tx.id}">${t('delete')}</button></td>`:'<td></td>'}
+  </tr>`).join('') || `<tr><td colspan="4" class="muted">—</td></tr>`;
+
+  const consolidated = STATE.session.role==='admin' ? renderConsolidated(cutoff) : '';
+
+  return `
+  <div class="pagehead"><h2>${t('bilanTitle')}</h2></div>
+  <div class="toolbar">
+    <label>${t('bilanSub')}</label>
+    <select id="bilan-sub-select">${subs.map(s=>`<option value="${s.id}" ${s.id===sub.id?'selected':''}>${s.name}</option>`).join('')}</select>
+    <label>${t('cutoff')}</label>
+    <input type="date" id="bilan-cutoff" value="${cutoff}">
+  </div>
+  <div class="kpirow">
+    <div class="kpi"><div class="kpi-label">${t('totalAssets')}</div><div class="kpi-value">${fmtMoney(snap.assets)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('totalLiabilities')}</div><div class="kpi-value">${fmtMoney(snap.liabilities)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('netPosition')}</div><div class="kpi-value">${fmtMoney(snap.net)}</div></div>
+  </div>
+  <div class="grid2">
+    <div class="panel"><h3>${t('assets')}</h3><table><tbody>${CATS.asset.map(catRow).join('')}</tbody></table></div>
+    <div class="panel"><h3>${t('liabilities')}</h3><table><tbody>${CATS.liability.map(catRow).join('')}</tbody></table></div>
+  </div>
+  ${editable?`
+  <div class="panel">
+    <h3>${t('addEntry')}</h3>
+    <div class="toolbar">
+      <select id="tx-category">${allCats.map(c=>`<option value="${c}">${t('cat_'+c)}</option>`).join('')}</select>
+      <input type="date" id="tx-date" value="${cutoff}">
+      <input type="number" id="tx-amount" placeholder="${t('amount')}" style="width:140px;">
+      <input type="text" id="tx-note" placeholder="${t('note')}" style="flex:1;min-width:140px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;">
+      <button class="btn btn-primary btn-sm" id="add-tx-btn">${t('addEntry')}</button>
+    </div>
+  </div>`:''}
+  <div class="panel">
+    <h3>${t('history')}</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>${t('date')}</th><th>${t('category')}</th><th>${t('amount')}</th><th>${t('note')}</th><th>${t('enteredBy')}</th><th></th></tr></thead>
+      <tbody>${txRows}</tbody>
+    </table></div>
+  </div>
+  <div class="panel">
+    <h3>${t('dailyExpenses')}</h3>
+    ${editable?`<div class="toolbar">
+      <input type="date" id="exp-date" value="${cutoff}">
+      <input type="text" id="exp-desc" placeholder="${t('expDesc')}" style="flex:1;min-width:140px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;">
+      <input type="number" id="exp-amount" placeholder="${t('expAmount')}" style="width:140px;">
+      <button class="btn btn-primary btn-sm" id="add-exp-btn">${t('addEntry')}</button>
+    </div>`:''}
+    <div class="kpi" style="max-width:260px;margin:10px 0;"><div class="kpi-label">${t('expTotal')}</div><div class="kpi-value">${fmtMoney(expTotal)}</div></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>${t('expDate')}</th><th>${t('expDesc')}</th><th>${t('expAmount')}</th><th></th></tr></thead>
+      <tbody>${expRows}</tbody>
+    </table></div>
+  </div>
+  ${consolidated}
+  `;
+}
+
+function renderConsolidated(cutoff){
+  const allCats = CATS.asset.concat(CATS.liability);
+  const rows = allCats.map(cat=>{
+    const cells = SUBS.map(s=>`<td>${fmtMoney(bilanBalance(s.id,cat,cutoff))}</td>`).join('');
+    return `<tr><td>${t('cat_'+cat)}</td>${cells}</tr>`;
+  }).join('');
+  const totalRow = (label, fn)=>`<tr><td><b>${label}</b></td>${SUBS.map(s=>{const snap=bilanSnapshot(s.id,cutoff);return `<td><b>${fmtMoney(fn(snap))}</b></td>`;}).join('')}</tr>`;
+  return `<div class="panel">
+    <h3>${t('consolidated')}</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th></th>${SUBS.map(s=>`<th>${s.name}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${rows}
+        ${totalRow(t('totalAssets'), s=>s.assets)}
+        ${totalRow(t('totalLiabilities'), s=>s.liabilities)}
+        ${totalRow(t('netPosition'), s=>s.net)}
+      </tbody>
+    </table></div>
+  </div>`;
+}
+
+/* =========================================================================
+   VIEW: Admin
+   ========================================================================= */
+function viewAdmin(){
+  if(STATE.session.role!=='admin') return `<div class="panel">${t('noAccess')}</div>`;
+  const users = STATE.data.users||{};
+  const rows = Object.keys(users).map(uname=>{
+    const u = users[uname];
+    const accessRows = SUBS.map(s=>{
+      const cur = (u.access||{})[s.id]||'none';
+      return `<div>${s.name}</div><select data-user="${uname}" data-sub="${s.id}" class="user-access-select">
+        <option value="none" ${cur==='none'?'selected':''}>${t('none')}</option>
+        <option value="view" ${cur==='view'?'selected':''}>${t('view')}</option>
+        <option value="entry" ${cur==='entry'?'selected':''}>${t('entry')}</option>
+      </select>`;
+    }).join('');
+    return `<div class="panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+        <div><b>${u.displayName}</b> <span class="muted">(${uname})</span></div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select data-user="${uname}" class="user-role-select">
+            <option value="user" ${u.role==='user'?'selected':''}>${t('user')}</option>
+            <option value="admin" ${u.role==='admin'?'selected':''}>${t('admin')}</option>
+          </select>
+          <button class="btn btn-sm" data-reset-user="${uname}">${t('resetPw')}</button>
+          <button class="btn btn-sm btn-danger" data-delete-user="${uname}">${t('deleteUser')}</button>
+        </div>
+      </div>
+      <div class="access-grid">${u.role==='admin'?`<div class="muted" style="grid-column:1/-1;">${t('admin')}</div>`:accessRows}</div>
+    </div>`;
+  }).join('');
+
+  const actLog = (STATE.data.activityLog||[]).slice(0,80).map(e=>`<div class="row"><span>${e.user} — ${e.action} ${e.detail?('· '+e.detail):''}</span><span class="muted">${new Date(e.ts).toLocaleString()}</span></div>`).join('') || `<div class="muted">—</div>`;
+
+  return `
+  <div class="pagehead"><h2>${t('adminTitle')}</h2></div>
+  <div class="panel">
+    <h3>${t('addUser')}</h3>
+    <div class="grid2">
+      <div class="field"><label>${t('username')}</label><input id="new-user-username"></div>
+      <div class="field"><label>${t('password')}</label><input id="new-user-password" type="text"></div>
+      <div class="field"><label>${t('displayName')}</label><input id="new-user-displayname"></div>
+      <div class="field"><label>${t('role')}</label><select id="new-user-role"><option value="user">${t('user')}</option><option value="admin">${t('admin')}</option></select></div>
+    </div>
+    <button class="btn btn-primary btn-sm" id="add-user-btn">${t('addUser')}</button>
+  </div>
+  <h3 style="margin:16px 0 10px;">${t('users')}</h3>
+  ${rows}
+  <div class="panel">
+    <h3>${t('activityLog')}</h3>
+    <div class="actlog">${actLog}</div>
+  </div>
+  `;
+}
+
+/* =========================================================================
+   EVENT WIRING
+   ========================================================================= */
+function collectMonthlyEdits(sub){
+  const out = {};
+  document.querySelectorAll('#view-root td input[data-m]').forEach(inp=>{
+    const m = inp.getAttribute('data-m'), f = inp.getAttribute('data-f');
+    out[m] = out[m] || {};
+    out[m][f] = Number(inp.value)||0;
+  });
+  const merged = Object.assign({}, actualsFor(sub.id).monthly);
+  Object.keys(out).forEach(m=>{ merged[m] = Object.assign({}, merged[m]||{}, out[m]); });
+  return {monthly: merged};
+}
+
+function wireViewEvents(){
+  document.querySelectorAll('[data-open-sub]').forEach(el=>{
+    el.addEventListener('click', ()=>{ STATE.activeSub = el.getAttribute('data-open-sub'); STATE.view='subsidiary'; render(); });
+  });
+  document.querySelectorAll('[data-back-overview]').forEach(el=>{
+    el.addEventListener('click', ()=>{ STATE.view='dashboard'; render(); });
+  });
+
+  if(STATE.view==='subsidiary'){
+    const sub = subById(STATE.activeSub);
+    const saveMonthlyBtn = document.getElementById('save-monthly');
+    if(saveMonthlyBtn) saveMonthlyBtn.addEventListener('click', ()=> saveSection(sub.id, 'actuals', collectMonthlyEdits(sub)));
+
+    const savePlanBtn = document.getElementById('save-plan-numbers');
+    if(savePlanBtn) savePlanBtn.addEventListener('click', ()=>{
+      const value = Object.assign({}, planFor(sub.id), {
+        annualObjective: Number(document.getElementById('plan-obj').value)||0,
+        distRevenueAnnualPlan: Number(document.getElementById('plan-distplan').value)||0
+      });
+      saveSection(sub.id, 'plan', value);
+    });
+
+    const fxBtn = document.getElementById('save-fx');
+    if(fxBtn) fxBtn.addEventListener('click', ()=> saveFx({ngnToXof: Number(document.getElementById('fx-rate').value)||0}));
+
+    const addHireBtn = document.getElementById('add-hire-row');
+    if(addHireBtn) addHireBtn.addEventListener('click', ()=>{
+      const list = (STATE.data.hiring[sub.id]||[]).slice();
+      list.push({id:'h'+Date.now(), position:'', plannedMonth:MONTHS[0], status:'planned', actualHireDate:''});
+      STATE.data.hiring[sub.id] = list;
+      render();
+    });
+    document.querySelectorAll('[data-remove-hire]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const idx = Number(el.getAttribute('data-remove-hire'));
+        const list = (STATE.data.hiring[sub.id]||[]).slice(); list.splice(idx,1);
+        STATE.data.hiring[sub.id] = list; render();
+      });
+    });
+    const saveHireBtn = document.getElementById('save-hiring');
+    if(saveHireBtn) saveHireBtn.addEventListener('click', ()=>{
+      const rows = document.querySelectorAll('#hiring-rows .hire-row');
+      const list = [];
+      rows.forEach(row=>{
+        const idx = Number(row.getAttribute('data-idx'));
+        const existing = (STATE.data.hiring[sub.id]||[])[idx] || {};
+        list.push({
+          id: existing.id || ('h'+Date.now()+idx),
+          position: row.querySelector('[data-f=position]').value,
+          plannedMonth: row.querySelector('[data-f=plannedMonth]').value,
+          status: row.querySelector('[data-f=status]').value,
+          actualHireDate: row.querySelector('[data-f=actualHireDate]').value
+        });
+      });
+      saveSection(sub.id, 'hiring', list);
+    });
+
+    const addMktBtn = document.getElementById('add-mkt-row');
+    if(addMktBtn) addMktBtn.addEventListener('click', ()=>{
+      const list = (STATE.data.marketingActivities[sub.id]||[]).slice();
+      list.push({id:'mk'+Date.now(), name:'', monthlyBudget:0});
+      STATE.data.marketingActivities[sub.id] = list;
+      render();
+    });
+    document.querySelectorAll('[data-remove-mkt]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const idx = Number(el.getAttribute('data-remove-mkt'));
+        const list = (STATE.data.marketingActivities[sub.id]||[]).slice(); list.splice(idx,1);
+        STATE.data.marketingActivities[sub.id] = list; render();
+      });
+    });
+    const saveMktBtn = document.getElementById('save-mkt-activities');
+    if(saveMktBtn) saveMktBtn.addEventListener('click', ()=>{
+      const rows = document.querySelectorAll('#mkt-rows .mkt-row');
+      const list = [];
+      rows.forEach(row=>{
+        const idx = Number(row.getAttribute('data-idx'));
+        const existing = (STATE.data.marketingActivities[sub.id]||[])[idx] || {};
+        list.push({
+          id: existing.id || ('mk'+Date.now()+idx),
+          name: row.querySelector('[data-f=name]').value,
+          monthlyBudget: Number(row.querySelector('[data-f=monthlyBudget]').value)||0
+        });
+      });
+      saveSection(sub.id, 'marketingActivities', list);
+    });
+
+    const saveCLBtn = document.getElementById('save-creditline');
+    if(saveCLBtn) saveCLBtn.addEventListener('click', ()=> saveSection(sub.id, 'creditLine', {
+      ceiling: Number(document.getElementById('cl-ceiling').value)||0,
+      outstanding: Number(document.getElementById('cl-outstanding').value)||0
+    }));
+
+    const saveNotesBtn = document.getElementById('save-notes');
+    if(saveNotesBtn) saveNotesBtn.addEventListener('click', ()=> saveSection(sub.id, 'notes', document.getElementById('notes-field').value));
+  }
+
+  if(STATE.view==='bilan'){
+    const subSel = document.getElementById('bilan-sub-select');
+    if(subSel) subSel.addEventListener('change', ()=>{ STATE.bilanSub = subSel.value; render(); });
+    const cutoffInp = document.getElementById('bilan-cutoff');
+    if(cutoffInp) cutoffInp.addEventListener('change', ()=>{ STATE.bilanCutoff = cutoffInp.value; render(); });
+
+    const addTxBtn = document.getElementById('add-tx-btn');
+    if(addTxBtn) addTxBtn.addEventListener('click', ()=>{
+      const cat = document.getElementById('tx-category').value;
+      const date = document.getElementById('tx-date').value;
+      const amount = Number(document.getElementById('tx-amount').value)||0;
+      const note = document.getElementById('tx-note').value;
+      const list = (STATE.data.bilanTx[STATE.bilanSub]||[]).slice();
+      list.push({id:'tx'+Date.now(), date, category:cat, amount, note, enteredBy:STATE.session.username, ts:Date.now()});
+      saveSection(STATE.bilanSub, 'bilanTx', list);
+    });
+    const addExpBtn = document.getElementById('add-exp-btn');
+    if(addExpBtn) addExpBtn.addEventListener('click', ()=>{
+      const date = document.getElementById('exp-date').value;
+      const desc = document.getElementById('exp-desc').value;
+      const amount = Math.abs(Number(document.getElementById('exp-amount').value)||0);
+      const list = (STATE.data.bilanTx[STATE.bilanSub]||[]).slice();
+      list.push({id:'tx'+Date.now(), date, category:'cash', amount:-amount, note:desc, enteredBy:STATE.session.username, ts:Date.now(), kind:'expense'});
+      saveSection(STATE.bilanSub, 'bilanTx', list);
+    });
+    document.querySelectorAll('[data-del-tx]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const id = el.getAttribute('data-del-tx');
+        const list = (STATE.data.bilanTx[STATE.bilanSub]||[]).filter(tx=>tx.id!==id);
+        saveSection(STATE.bilanSub, 'bilanTx', list);
+      });
+    });
+  }
+
+  if(STATE.view==='admin'){
+    const addUserBtn = document.getElementById('add-user-btn');
+    if(addUserBtn) addUserBtn.addEventListener('click', ()=>{
+      const username = document.getElementById('new-user-username').value.trim();
+      const password = document.getElementById('new-user-password').value.trim();
+      const displayName = document.getElementById('new-user-displayname').value.trim();
+      const role = document.getElementById('new-user-role').value;
+      if(!username || !password){ toast('Username/password required'); return; }
+      adminUsersOp('add', {username, password, displayName, role, access:{}});
+    });
+    document.querySelectorAll('.user-role-select').forEach(sel=>{
+      sel.addEventListener('change', ()=> adminUsersOp('update', {username: sel.getAttribute('data-user'), role: sel.value}));
+    });
+    document.querySelectorAll('.user-access-select').forEach(sel=>{
+      sel.addEventListener('change', ()=>{
+        const uname = sel.getAttribute('data-user');
+        const u = STATE.data.users[uname];
+        const access = Object.assign({}, u.access||{}, {[sel.getAttribute('data-sub')]: sel.value});
+        adminUsersOp('update', {username: uname, access});
+      });
+    });
+    document.querySelectorAll('[data-reset-user]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const uname = el.getAttribute('data-reset-user');
+        const np = prompt(t('newPw')+' — '+uname);
+        if(np) adminUsersOp('resetPassword', {username:uname, newPassword:np});
+      });
+    });
+    document.querySelectorAll('[data-delete-user]').forEach(el=>{
+      el.addEventListener('click', ()=>{
+        const uname = el.getAttribute('data-delete-user');
+        if(uname===STATE.session.username){ toast(t('cantDeleteSelf')); return; }
+        if(confirm(t('deleteUser')+': '+uname+'?')) adminUsersOp('delete', {username:uname});
+      });
+    });
+  }
+}
+
+/* =========================================================================
+   NAV / LOGIN / BOOT
+   ========================================================================= */
+document.getElementById('navlist').addEventListener('click', (e)=>{
+  const item = e.target.closest('.navitem');
+  if(!item) return;
+  STATE.view = item.getAttribute('data-nav');
+  render();
+});
+document.getElementById('logout-btn').addEventListener('click', ()=>{
+  STATE.session = null; saveSessionLocal(); stopPolling(); showApp(false);
+});
+document.querySelectorAll('#login-lang-switch button, #app-lang-switch button').forEach(b=>{
+  b.addEventListener('click', ()=> setLang(b.getAttribute('data-lang')));
+});
+
+document.getElementById('login-form').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const username = document.getElementById('li-user').value.trim();
+  const password = document.getElementById('li-pass').value;
+  const res = await postGAS('login', {username, password});
+  const errEl = document.getElementById('login-error');
+  if(res.ok){
+    STATE.session = Object.assign({username, password}, res.user);
+    STATE.data = res.data;
+    errEl.classList.remove('show');
+    saveSessionLocal();
+    showApp(true);
+    STATE.view='dashboard';
+    render();
+    startPolling();
+  } else {
+    errEl.textContent = res.error==='network' ? t('connErr') : t('badCreds');
+    errEl.classList.add('show');
+  }
+});
+
+async function tryAutoLogin(){
+  const saved = recallSessionLocal();
+  if(!saved) return;
+  const res = await postGAS('login', saved);
+  if(res.ok){
+    STATE.session = Object.assign({username:saved.username, password:saved.password}, res.user);
+    STATE.data = res.data;
+    showApp(true);
+    render();
+    startPolling();
+  }
+}
+
+function boot(){
+  document.querySelectorAll('.lang-switch button').forEach(b=>b.classList.toggle('active', b.getAttribute('data-lang')===STATE.lang));
+  applyI18nStatic();
+  tryAutoLogin();
+}
+if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', boot); } else { boot(); }
+</script>
+</body>
+</html>
