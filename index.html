@@ -414,7 +414,8 @@ var I18N = {
     topbar_adminTitle:'Admin panel', topbar_adminSub:'Manage user access and workspace settings', topbar_addUser:'Add user',
     kpi_forecastVolume:'Forecast volume (Cts)', kpi_forecastVolumeSub:'Target quantity, {quarters} combined',
     kpi_actualVolume:'Actual volume (Cts)', kpi_ofForecastVolume:'of forecast volume', kpi_noForecastYet:'No forecast recorded yet',
-    kpi_revenueBooked:'Revenue booked', kpi_revenueBookedSub:'Realised sales, {year}',
+    kpi_revenueObjective:'Revenue objective', kpi_revenueObjectiveSub:'Target revenue, {quarters} combined',
+    kpi_revenueBooked:'Revenue booked', kpi_revenueBookedSub:'Realised sales, {year}', kpi_ofRevenueObjective:'of revenue objective', kpi_noRevenueObjectiveYet:'No revenue objective set yet',
     kpi_distOnTrack:'Distributors on track', kpi_distOnTrackSub:'{behind} behind target · {noTarget} with no forecast set',
     kpi_estTrucks:'Est. trucks', kpi_estTrucksSub:'From source workbook',
     kpi_enCoursQty:'En Cours — Outstanding Qty', kpi_enCoursQtySub:'Forecast minus actual, Cts',
@@ -422,21 +423,26 @@ var I18N = {
     chart_fcVsActualTop:'Forecast vs. actual volume — top distributors', chart_fcVsActualTopCap:'Cartons/cases (Cts), by target size, {quarters} combined',
     chart_portfolioStatus:'Portfolio status', chart_portfolioStatusCap:'Distributors by attainment vs. quantity target',
     chart_monthlyVolume:'Monthly volume — forecast vs. actual', chart_monthlyVolumeCap:'All distributors combined, Cts',
-    chart_monthlyRevenue:'Monthly revenue booked', chart_monthlyRevenueCap:'Realised sales (CA), {currency}',
+    chart_monthlyRevenue:'Monthly revenue — objective vs. achieved', chart_monthlyRevenueCap:'All distributors combined, {currency}',
     chart_forecast:'Forecast', chart_actual:'Actual', chart_revenue:'Revenue', chart_distributorsWord:'distributors',
     status_good:'On track', status_warning:'At risk', status_critical:'Behind', status_neutral:'No target',
     status_onTrackLong:'On track (≥90%)', status_atRiskLong:'At risk (60–89%)', status_behindLong:'Behind (<60%)', status_noTargetLong:'No target set',
     table_distributor:'Distributor', table_country:'Country', table_forecastQty:'Forecast Qty', table_actualQty:'Actual Qty',
-    table_attainment:'Attainment', table_status:'Status', table_revenueBooked:'Revenue booked', table_trucksEst:'Trucks est.',
+    table_attainment:'Attainment', table_status:'Status', table_forecastCA:'Objective Revenue', table_revenueBooked:'Revenue booked', table_caAttainment:'Revenue Attain. %', table_trucksEst:'Trucks est.',
     table_enCoursQty:'En Cours Qty', table_enCoursRevenue:'En Cours Rev.',
     table_comment:'Comment', table_open:'Open', table_noMatch:'No distributors match your filters.',
     table_searchPlaceholder:'Search distributors…', table_allCountries:'All countries',
     dist_back:'Dashboard', dist_ofForecastAchieved:'{pct} of forecast volume achieved ({quarters})', dist_noForecast:'No quantity forecast recorded yet',
-    dist_forecastVolume:'Forecast volume', dist_actualVolume:'Actual volume', dist_revenueBooked:'Revenue booked',
+    dist_forecastVolume:'Forecast volume', dist_actualVolume:'Actual volume',
+    dist_forecastRevenue:'Objective revenue', dist_revenueBooked:'Revenue booked',
     dist_quartersCts:'Cts, {quarters}', dist_realised:'{quarters} realised',
     dist_monthlyVolume:'Monthly volume', dist_monthlyVolumeCap:'Forecast vs. actual, Cts',
-    dist_monthlyRevenue:'Monthly revenue', dist_monthlyRevenueCap:'Realised sales (CA)',
+    dist_monthlyRevenue:'Monthly revenue', dist_monthlyRevenueCap:'Objective vs. achieved',
     dist_quarterlySummary:'Quarterly summary', dist_quarter:'Quarter',
+    dist_objectivesTitle:'Sales objectives vs. achieved', dist_objectivesCap:'Quantity and revenue, by month, quarter and year',
+    obj_period:'Period', obj_qty:'Objective Qty', obj_achQty:'Achieved Qty', obj_qtyPct:'Qty %',
+    obj_rev:'Objective Revenue', obj_achRev:'Achieved Revenue', obj_revPct:'Revenue %',
+    obj_monthsGroup:'Months', obj_quartersGroup:'Quarters', obj_yearGroup:'Year', dist_yearTotal:'Year total',
     dist_comment:'Comment', dist_commentPlaceholder:'Add a note about this distributor…', dist_noComment:'No comment recorded.',
     dist_sourceVariance:'Source workbook variance indicator: {pct} (imported reference figure, method not standardised)',
     dist_country:'Country', dist_countryPlaceholder:'Set the country for this distributor…',
@@ -520,7 +526,8 @@ var I18N = {
     topbar_adminTitle:"Panneau d'administration", topbar_adminSub:"Gérer les accès utilisateurs et les paramètres de l'espace", topbar_addUser:'Ajouter un utilisateur',
     kpi_forecastVolume:'Volume prévisionnel (Cts)', kpi_forecastVolumeSub:'Quantité cible, {quarters} combinés',
     kpi_actualVolume:'Volume réalisé (Cts)', kpi_ofForecastVolume:'du volume prévisionnel', kpi_noForecastYet:'Aucune prévision enregistrée',
-    kpi_revenueBooked:'Chiffre d’affaires réalisé', kpi_revenueBookedSub:'Ventes réalisées, {year}',
+    kpi_revenueObjective:'Objectif de chiffre d’affaires', kpi_revenueObjectiveSub:'Chiffre d’affaires cible, {quarters} combinés',
+    kpi_revenueBooked:'Chiffre d’affaires réalisé', kpi_revenueBookedSub:'Ventes réalisées, {year}', kpi_ofRevenueObjective:'de l’objectif de chiffre d’affaires', kpi_noRevenueObjectiveYet:'Aucun objectif de chiffre d’affaires défini',
     kpi_distOnTrack:'Distributeurs dans les objectifs', kpi_distOnTrackSub:'{behind} en retard · {noTarget} sans prévision définie',
     kpi_estTrucks:'Camions est.', kpi_estTrucksSub:'Depuis le classeur source',
     kpi_enCoursQty:'En Cours — Quantité', kpi_enCoursQtySub:'Prévision moins réalisé, Cts',
@@ -528,21 +535,26 @@ var I18N = {
     chart_fcVsActualTop:'Volume prévu vs réalisé — principaux distributeurs', chart_fcVsActualTopCap:'Cartons/caisses (Cts), par taille d’objectif, {quarters} combinés',
     chart_portfolioStatus:'Statut du portefeuille', chart_portfolioStatusCap:'Distributeurs selon la réalisation vs objectif de quantité',
     chart_monthlyVolume:'Volume mensuel — prévu vs réalisé', chart_monthlyVolumeCap:'Tous distributeurs confondus, Cts',
-    chart_monthlyRevenue:"Chiffre d'affaires mensuel réalisé", chart_monthlyRevenueCap:'Ventes réalisées (CA), {currency}',
+    chart_monthlyRevenue:"Chiffre d'affaires mensuel — objectif vs réalisé", chart_monthlyRevenueCap:'Tous distributeurs confondus, {currency}',
     chart_forecast:'Prévision', chart_actual:'Réalisé', chart_revenue:'Chiffre d’affaires', chart_distributorsWord:'distributeurs',
     status_good:'Dans les objectifs', status_warning:'À risque', status_critical:'En retard', status_neutral:'Sans objectif',
     status_onTrackLong:'Dans les objectifs (≥90%)', status_atRiskLong:'À risque (60–89%)', status_behindLong:'En retard (<60%)', status_noTargetLong:'Sans objectif défini',
     table_distributor:'Distributeur', table_country:'Pays', table_forecastQty:'Qté prévisionnelle', table_actualQty:'Qté réalisée',
-    table_attainment:'Réalisation', table_status:'Statut', table_revenueBooked:'CA réalisé', table_trucksEst:'Camions est.',
+    table_attainment:'Réalisation', table_status:'Statut', table_forecastCA:'Objectif CA', table_revenueBooked:'CA réalisé', table_caAttainment:'Réal. CA %', table_trucksEst:'Camions est.',
     table_enCoursQty:'Qté en cours', table_enCoursRevenue:'CA en cours',
     table_comment:'Commentaire', table_open:'Ouvrir', table_noMatch:'Aucun distributeur ne correspond à vos filtres.',
     table_searchPlaceholder:'Rechercher un distributeur…', table_allCountries:'Tous les pays',
     dist_back:'Tableau de bord', dist_ofForecastAchieved:'{pct} du volume prévisionnel atteint ({quarters})', dist_noForecast:'Aucune prévision de quantité enregistrée',
-    dist_forecastVolume:'Volume prévisionnel', dist_actualVolume:'Volume réalisé', dist_revenueBooked:'Chiffre d’affaires réalisé',
+    dist_forecastVolume:'Volume prévisionnel', dist_actualVolume:'Volume réalisé',
+    dist_forecastRevenue:'Objectif de chiffre d’affaires', dist_revenueBooked:'Chiffre d’affaires réalisé',
     dist_quartersCts:'Cts, {quarters}', dist_realised:'{quarters} réalisé',
     dist_monthlyVolume:'Volume mensuel', dist_monthlyVolumeCap:'Prévu vs réalisé, Cts',
-    dist_monthlyRevenue:'Chiffre d’affaires mensuel', dist_monthlyRevenueCap:'Ventes réalisées (CA)',
+    dist_monthlyRevenue:'Chiffre d’affaires mensuel', dist_monthlyRevenueCap:'Objectif vs réalisé',
     dist_quarterlySummary:'Résumé trimestriel', dist_quarter:'Trimestre',
+    dist_objectivesTitle:'Objectifs de ventes vs réalisé', dist_objectivesCap:'Quantité et chiffre d’affaires, par mois, trimestre et année',
+    obj_period:'Période', obj_qty:'Qté objectif', obj_achQty:'Qté réalisée', obj_qtyPct:'Qté %',
+    obj_rev:'CA objectif', obj_achRev:'CA réalisé', obj_revPct:'CA %',
+    obj_monthsGroup:'Mois', obj_quartersGroup:'Trimestres', obj_yearGroup:'Année', dist_yearTotal:'Total annuel',
     dist_comment:'Commentaire', dist_commentPlaceholder:'Ajouter une note sur ce distributeur…', dist_noComment:'Aucun commentaire enregistré.',
     dist_sourceVariance:'Indicateur d’écart du classeur source : {pct} (donnée importée à titre de référence, méthode non standardisée)',
     dist_country:'Pays', dist_countryPlaceholder:'Définir le pays de ce distributeur…',
@@ -662,21 +674,25 @@ var MONTH_TO_Q = { Jan:'T1',Feb:'T1',Mar:'T1', Apr:'T2',May:'T2',Jun:'T2', Jul:'
 var QUARTERS = ['T1','T2','T3','T4'];
 function quartersLabel(){ return QUARTERS[0]+'–'+QUARTERS[QUARTERS.length-1]; }
 
-/* Attainment / status is computed on QUANTITY, since that is the field the
-   source workbook actually forecasts against — revenue targets were never
-   populated in the source file (only realised revenue exists). */
+/* Quantity attainment/status drives the En Cours (outstanding) KPIs, since
+   that is the field the original source workbook forecasts against.
+   Revenue objectives (forecast_ca) are captured too — via the monthly and
+   quarterly entry forms — and are surfaced alongside quantity as their own
+   Objective vs Achieved comparison (see renderObjectivesTable). */
 function distTotals(d){
-  var fq=0, aq=0, ac=0, hasForecast=false;
+  var fq=0, aq=0, ac=0, hasForecast=false, fc=0, hasForecastCA=false;
   QUARTERS.forEach(function(q){
     var qd = d.quarters[q] || {};
     if(qd.forecast_qty){ fq += qd.forecast_qty; hasForecast = true; }
     if(qd.actual_qty) aq += qd.actual_qty;
     if(qd.actual_ca) ac += qd.actual_ca;
+    if(qd.forecast_ca){ fc += qd.forecast_ca; hasForecastCA = true; }
   });
   var attainment = hasForecast && fq>0 ? (aq/fq*100) : null;
+  var caAttainment = hasForecastCA && fc>0 ? (ac/fc*100) : null;
   var enCoursQty = hasForecast ? Math.max(fq-aq, 0) : null;
   var enCoursCA = (enCoursQty!=null && aq>0) ? enCoursQty*(ac/aq) : (enCoursQty===0 ? 0 : null);
-  return { forecastQty: fq, actualQty: aq, actualCA: ac, attainment: attainment, hasForecast: hasForecast, enCoursQty: enCoursQty, enCoursCA: enCoursCA };
+  return { forecastQty: fq, actualQty: aq, actualCA: ac, attainment: attainment, hasForecast: hasForecast, enCoursQty: enCoursQty, enCoursCA: enCoursCA, forecastCA: fc, hasForecastCA: hasForecastCA, caAttainment: caAttainment };
 }
 function statusFor(attainment){
   if(attainment===null) return 'neutral';
@@ -1205,9 +1221,11 @@ function renderDashboardView(){
   var totalFQ = sum(withTotals.map(function(x){return x.t.forecastQty;}));
   var totalAQ = sum(withTotals.map(function(x){return x.t.actualQty;}));
   var totalAC = sum(withTotals.map(function(x){return x.t.actualCA;}));
+  var totalFC = sum(withTotals.map(function(x){return x.t.forecastCA;}));
   var totalEnCoursQty = sumOrNull(withTotals.map(function(x){return x.t.enCoursQty;}));
   var totalEnCoursCA = sumOrNull(withTotals.map(function(x){return x.t.enCoursCA;}));
   var overallAttain = totalFQ>0 ? (totalAQ/totalFQ*100) : null;
+  var overallCaAttain = totalFC>0 ? (totalAC/totalFC*100) : null;
   var counts = { good:0, warning:0, critical:0, neutral:0 };
   withTotals.forEach(function(x){ counts[statusFor(x.t.attainment)]++; });
 
@@ -1215,6 +1233,7 @@ function renderDashboardView(){
   var monthlyFQ = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].forecast_qty : null; })); });
   var monthlyAQ = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].actual_qty : null; })); });
   var monthlyAC = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].actual_ca : null; })); });
+  var monthlyFC = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].forecast_ca : null; })); });
 
   // top 8 by forecast qty (for forecast vs actual comparison)
   var topQty = withTotals.filter(function(x){return x.t.forecastQty>0;}).sort(function(a,b){ return b.t.forecastQty - a.t.forecastQty; }).slice(0,8);
@@ -1223,7 +1242,8 @@ function renderDashboardView(){
     '<div class="kpi-grid">'+
       kpiCard(t('kpi_forecastVolume'), fmtInt(totalFQ), t('kpi_forecastVolumeSub',{quarters:quartersLabel()}), 'box')+
       kpiCard(t('kpi_actualVolume'), fmtInt(totalAQ), overallAttain!=null ? attainmentSub(overallAttain) : t('kpi_noForecastYet'), 'truck')+
-      kpiCard(t('kpi_revenueBooked'), fmtCA(totalAC), t('kpi_revenueBookedSub',{year:STATE.meta.year}), 'building')+
+      kpiCard(t('kpi_revenueObjective'), fmtCA(totalFC), t('kpi_revenueObjectiveSub',{quarters:quartersLabel()}), 'building')+
+      kpiCard(t('kpi_revenueBooked'), fmtCA(totalAC), overallCaAttain!=null ? caAttainmentSub(overallCaAttain) : t('kpi_noRevenueObjectiveYet'), 'building')+
       kpiCard(t('kpi_distOnTrack'), counts.good+' / '+withTotals.length, t('kpi_distOnTrackSub',{behind:counts.critical, noTarget:counts.neutral}), 'shield')+
       kpiCard(t('kpi_enCoursQty'), fmtInt(totalEnCoursQty), t('kpi_enCoursQtySub'), 'box')+
       kpiCard(t('kpi_enCoursRevenue'), fmtCA(totalEnCoursCA), t('kpi_enCoursRevenueSub'), 'building')+
@@ -1263,7 +1283,8 @@ function renderDashboardView(){
       '<div class="card card-pad">'+
         '<div class="chart-title">'+t('chart_monthlyRevenue')+'</div>'+
         '<div class="chart-caption">'+t('chart_monthlyRevenueCap',{currency:STATE.meta.currencyLabel})+'</div>'+
-        svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_revenue'), values:monthlyAC}], {colors:['var(--series-3)'], area:true, fmt:fmtCA})+
+        svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFC},{name:t('chart_actual'), values:monthlyAC}], {colors:['var(--series-1)','var(--series-2)'], fmt:fmtCA})+
+        legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
       '</div>'+
     '</div>';
 
@@ -1300,6 +1321,10 @@ function attainmentSub(a){
   var cls = a>=90 ? 'kpi-delta-up' : (a<60?'kpi-delta-down':'');
   return '<span class="'+cls+'">'+fmtPct(a)+'</span> '+t('kpi_ofForecastVolume');
 }
+function caAttainmentSub(a){
+  var cls = a>=90 ? 'kpi-delta-up' : (a<60?'kpi-delta-down':'');
+  return '<span class="'+cls+'">'+fmtPct(a)+'</span> '+t('kpi_ofRevenueObjective');
+}
 function legendRow(names, colors){
   return '<div class="legend-row">'+names.map(function(nm,i){ return '<span class="legend-item"><span class="legend-swatch" style="background:'+resolveColor(colors[i])+'"></span>'+esc(nm)+'</span>'; }).join('')+'</div>';
 }
@@ -1319,7 +1344,9 @@ function applyTableFilters(rows){
     if(key==='attainment'){ av=a.t.attainment==null?-1:a.t.attainment; bv=b.t.attainment==null?-1:b.t.attainment; }
     else if(key==='forecastQty'){ av=a.t.forecastQty; bv=b.t.forecastQty; }
     else if(key==='actualQty'){ av=a.t.actualQty; bv=b.t.actualQty; }
+    else if(key==='forecastCA'){ av=a.t.forecastCA; bv=b.t.forecastCA; }
     else if(key==='actualCA'){ av=a.t.actualCA; bv=b.t.actualCA; }
+    else if(key==='caAttainment'){ av=a.t.caAttainment==null?-1:a.t.caAttainment; bv=b.t.caAttainment==null?-1:b.t.caAttainment; }
     else if(key==='enCoursQty'){ av=a.t.enCoursQty==null?-1:a.t.enCoursQty; bv=b.t.enCoursQty==null?-1:b.t.enCoursQty; }
     return dir*(av-bv);
   });
@@ -1331,10 +1358,10 @@ function sortTh(label, key, extraCls){
 }
 function renderDashboardTable(rows){
   if(!rows.length) return '<div class="empty-state">'+icon('search')+'<div>'+t('table_noMatch')+'</div></div>';
-  var head = '<tr>'+sortTh(t('table_distributor'),'name')+sortTh(t('table_country'),'country')+sortTh(t('table_forecastQty'),'forecastQty','num')+sortTh(t('table_actualQty'),'actualQty','num')+sortTh(t('table_attainment'),'attainment','num')+'<th>'+t('table_status')+'</th>'+sortTh(t('table_revenueBooked'),'actualCA','num')+sortTh(t('table_enCoursQty'),'enCoursQty','num')+'<th class="num">'+t('table_enCoursRevenue')+'</th><th>'+t('table_trucksEst')+'</th><th>'+t('table_comment')+'</th><th></th></tr>';
+  var head = '<tr>'+sortTh(t('table_distributor'),'name')+sortTh(t('table_country'),'country')+sortTh(t('table_forecastQty'),'forecastQty','num')+sortTh(t('table_actualQty'),'actualQty','num')+sortTh(t('table_attainment'),'attainment','num')+'<th>'+t('table_status')+'</th>'+sortTh(t('table_forecastCA'),'forecastCA','num')+sortTh(t('table_revenueBooked'),'actualCA','num')+sortTh(t('table_caAttainment'),'caAttainment','num')+sortTh(t('table_enCoursQty'),'enCoursQty','num')+'<th class="num">'+t('table_enCoursRevenue')+'</th><th>'+t('table_trucksEst')+'</th><th>'+t('table_comment')+'</th><th></th></tr>';
   var groups = groupByCountry(rows);
   var body = groups.map(function(g){
-    var groupRow = '<tr class="country-row"><td colspan="12">'+esc(g.country)+' <span class="muted">('+g.rows.length+')</span></td></tr>';
+    var groupRow = '<tr class="country-row"><td colspan="14">'+esc(g.country)+' <span class="muted">('+g.rows.length+')</span></td></tr>';
     var rowsHtml = g.rows.map(function(r){
       var s = statusFor(r.t.attainment);
       return '<tr data-dist="'+esc(r.id)+'">'+
@@ -1344,7 +1371,9 @@ function renderDashboardTable(rows){
         '<td class="num">'+fmtInt(r.t.actualQty)+'</td>'+
         '<td class="num">'+fmtPct(r.t.attainment)+'</td>'+
         '<td>'+statusPill(s)+'</td>'+
+        '<td class="num">'+fmtCA(r.t.forecastCA)+'</td>'+
         '<td class="num">'+fmtCA(r.t.actualCA)+'</td>'+
+        '<td class="num">'+fmtPct(r.t.caAttainment)+'</td>'+
         '<td class="num">'+fmtInt(r.t.enCoursQty)+'</td>'+
         '<td class="num">'+fmtCA(r.t.enCoursCA)+'</td>'+
         '<td class="num">'+fmtInt(r.trucks_est)+'</td>'+
@@ -1425,11 +1454,7 @@ function renderDistributorView(distId){
   var monthlyFQ = MONTHS.map(function(m){ return d.months[m] ? d.months[m].forecast_qty : null; });
   var monthlyAQ = MONTHS.map(function(m){ return d.months[m] ? d.months[m].actual_qty : null; });
   var monthlyAC = MONTHS.map(function(m){ return d.months[m] ? d.months[m].actual_ca : null; });
-
-  var quarterRows = QUARTERS.map(function(q){
-    var qd = d.quarters[q] || {};
-    return { label:q, forecast_qty:qd.forecast_qty, actual_qty:qd.actual_qty, actual_ca:qd.actual_ca };
-  });
+  var monthlyFC = MONTHS.map(function(m){ return d.months[m] ? d.months[m].forecast_ca : null; });
 
   var right = canEdit ? '<button class="btn btn-primary btn-sm" id="goto-entry">'+icon('edit')+t('topbar_enterData')+'</button>' : '';
 
@@ -1443,7 +1468,8 @@ function renderDistributorView(distId){
       '<div class="kpi-grid">'+
         kpiCard(t('dist_forecastVolume'), fmtInt(tt.forecastQty), t('dist_quartersCts',{quarters:quartersLabel()}), 'box')+
         kpiCard(t('dist_actualVolume'), fmtInt(tt.actualQty), t('dist_quartersCts',{quarters:quartersLabel()}), 'truck')+
-        kpiCard(t('dist_revenueBooked'), fmtCA(tt.actualCA), t('dist_realised',{quarters:quartersLabel()}), 'building')+
+        kpiCard(t('dist_forecastRevenue'), fmtCA(tt.forecastCA), t('dist_quartersCts',{quarters:quartersLabel()}), 'building')+
+        kpiCard(t('dist_revenueBooked'), fmtCA(tt.actualCA), tt.caAttainment!=null ? caAttainmentSub(tt.caAttainment) : t('dist_realised',{quarters:quartersLabel()}), 'building')+
         kpiCard(t('kpi_estTrucks'), fmtInt(d.trucks_est), t('kpi_estTrucksSub'), 'truck')+
         kpiCard(t('kpi_enCoursQty'), fmtInt(tt.enCoursQty), t('kpi_enCoursQtySub'), 'box')+
         kpiCard(t('kpi_enCoursRevenue'), fmtCA(tt.enCoursCA), t('kpi_enCoursRevenueSub'), 'building')+
@@ -1456,17 +1482,14 @@ function renderDistributorView(distId){
         '</div>'+
         '<div class="card card-pad">'+
           '<div class="chart-title">'+t('dist_monthlyRevenue')+'</div><div class="chart-caption">'+t('dist_monthlyRevenueCap')+'</div>'+
-          svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_revenue'), values:monthlyAC}], {colors:['var(--series-3)'], area:true, fmt:fmtCA})+
+          svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFC},{name:t('chart_actual'), values:monthlyAC}], {colors:['var(--series-1)','var(--series-2)'], fmt:fmtCA})+
+          legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
         '</div>'+
       '</div>'+
       '<div class="card card-pad" style="margin-bottom:14px;">'+
-        '<div class="chart-title" style="margin-bottom:12px;">'+t('dist_quarterlySummary')+'</div>'+
-        '<div class="scroll-x"><table><thead><tr><th>'+t('dist_quarter')+'</th><th class="num">'+t('table_forecastQty')+'</th><th class="num">'+t('table_actualQty')+'</th><th class="num">'+t('table_attainment')+'</th><th class="num">'+t('table_revenueBooked')+'</th></tr></thead><tbody>'+
-        quarterRows.map(function(q){
-          var qa = q.forecast_qty>0 ? (q.actual_qty||0)/q.forecast_qty*100 : null;
-          return '<tr><td>'+q.label+'</td><td class="num">'+fmtInt(q.forecast_qty)+'</td><td class="num">'+fmtInt(q.actual_qty)+'</td><td class="num">'+fmtPct(qa)+'</td><td class="num">'+fmtCA(q.actual_ca)+'</td></tr>';
-        }).join('')+
-        '</tbody></table></div>'+
+        '<div class="chart-title" style="margin-bottom:2px;">'+t('dist_objectivesTitle')+'</div>'+
+        '<div class="chart-caption" style="margin-bottom:12px;">'+t('dist_objectivesCap')+'</div>'+
+        '<div class="scroll-x">'+renderObjectivesTable(d)+'</div>'+
       '</div>'+
       '<div class="card card-pad" style="margin-bottom:14px; max-width:420px;">'+
         '<div class="chart-title">'+t('dist_country')+'</div>'+
@@ -1484,6 +1507,38 @@ function renderDistributorView(distId){
       renderSkuSection(sku)+
     '</div>';
   return body;
+}
+/* Objective vs Achieved — Month + Quarter + Year rows, Qty and Revenue side
+   by side, each with an attainment %. Months/quarters are independently
+   entered (not derived from each other), so the Year row is built from
+   distTotals(), which sums the quarters — same authoritative total used by
+   every other KPI card and the dashboard table. */
+function objPeriodRow(label, obj, opts){
+  opts = opts || {};
+  var fq = obj.forecast_qty, aq = obj.actual_qty, fc = obj.forecast_ca, ac = obj.actual_ca;
+  var qtyPct = (fq!=null && fq>0) ? (aq||0)/fq*100 : null;
+  var revPct = (fc!=null && fc>0) ? (ac||0)/fc*100 : null;
+  var style = opts.strong ? ' style="font-weight:700; background:var(--surface-sunken);"' : '';
+  return '<tr'+style+'><td>'+esc(label)+'</td>'+
+    '<td class="num">'+fmtInt(fq)+'</td>'+
+    '<td class="num">'+fmtInt(aq)+'</td>'+
+    '<td class="num">'+fmtPct(qtyPct)+'</td>'+
+    '<td class="num">'+fmtCA(fc)+'</td>'+
+    '<td class="num">'+fmtCA(ac)+'</td>'+
+    '<td class="num">'+fmtPct(revPct)+'</td>'+
+  '</tr>';
+}
+function renderObjectivesTable(d){
+  var tt = distTotals(d);
+  var head = '<tr><th>'+t('obj_period')+'</th><th class="num">'+t('obj_qty')+'</th><th class="num">'+t('obj_achQty')+'</th><th class="num">'+t('obj_qtyPct')+'</th><th class="num">'+t('obj_rev')+'</th><th class="num">'+t('obj_achRev')+'</th><th class="num">'+t('obj_revPct')+'</th></tr>';
+  var monthRows = MONTHS.map(function(m){ return objPeriodRow(monthLabel(m), d.months[m] || {}); }).join('');
+  var quarterRows = QUARTERS.map(function(q){ return objPeriodRow(q, d.quarters[q] || {}); }).join('');
+  var yearRow = objPeriodRow(t('dist_yearTotal'), { forecast_qty: tt.forecastQty, actual_qty: tt.actualQty, forecast_ca: tt.forecastCA, actual_ca: tt.actualCA }, {strong:true});
+  return '<table><thead>'+head+'</thead><tbody>'+
+    '<tr class="country-row"><td colspan="7">'+esc(t('obj_monthsGroup'))+'</td></tr>'+monthRows+
+    '<tr class="country-row"><td colspan="7">'+esc(t('obj_quartersGroup'))+'</td></tr>'+quarterRows+
+    '<tr class="country-row"><td colspan="7">'+esc(t('obj_yearGroup'))+'</td></tr>'+yearRow+
+    '</tbody></table>';
 }
 function renderSkuSection(sku){
   if(!sku || !sku.length){
