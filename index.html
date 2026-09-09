@@ -222,6 +222,10 @@
   .btn-ghost{ background:none; border-color:transparent; }
   .btn-ghost:hover{ background:var(--surface-sunken); }
 
+  .spinner{ display:inline-block; width:14px; height:14px; border-radius:50%; border:2px solid currentColor; border-right-color:transparent; opacity:.7; animation: spin .7s linear infinite; flex:none; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .saving-indicator{ position:fixed; bottom:20px; left:20px; display:flex; align-items:center; gap:9px; background:var(--surface-2); border:1px solid var(--border); box-shadow:var(--shadow-md); border-radius:9px; padding:9px 14px; font-size:12.5px; color:var(--text-2); z-index:300; }
+
   .card{ background: var(--surface); border:1px solid var(--border); border-radius: var(--radius); }
   .card-pad{ padding: 18px 20px; }
 
@@ -413,7 +417,7 @@ var I18N = {
     dash:'—', all:'All',
     nav_dashboard:'Dashboard', nav_entry:'Data entry', nav_admin:'Admin panel',
     login_tagline:'{year} sales tracker — sign in to continue', login_username:'Username', login_password:'Password',
-    login_signIn:'Sign in', login_error:'Incorrect username or password.', login_footer:"Ask your administrator for an account if you don't have one yet.",
+    login_signIn:'Sign in', login_signingIn:'Signing in…', login_error:'Incorrect username or password.', login_footer:"Ask your administrator for an account if you don't have one yet.",
     topbar_dashTitle:'{company} Objectives {year}', topbar_dashSub:'{count} distributors tracked · updated {date}',
     topbar_distSub:'Distributor detail', topbar_enterData:'Enter data',
     topbar_entryTitle:'Data entry', topbar_entrySubAssigned:'You can edit {count} assigned distributor{s}', topbar_entrySubAll:'All distributors',
@@ -510,7 +514,7 @@ var I18N = {
     admin_saveChanges:'Save changes', admin_createUser:'Create user', admin_resetPwTitle:'Reset password — {username}',
     admin_newPassword:'New password', admin_setPassword:'Set password', admin_deleteUserTitle:'Delete user',
     admin_deleteUserBody:'Remove {username} from this workspace? They will no longer be able to sign in.', admin_deleteUserConfirm:'Delete user',
-    toast_notConnected:'Not connected — change kept for this session only.', toast_saved:'Saved for everyone.',
+    toast_notConnected:'Not connected — change kept for this session only.', toast_saved:'Saved for everyone.', toast_saving:'Saving…',
     toast_readOnly:"You're a read-only viewer of this page, so the change wasn't saved.",
     toast_conflict:'Someone else saved changes just before you — reloading latest version.', toast_couldNotSave:'Could not save — change kept for this session only.',
     toast_commentSaved:'Comment saved.', toast_countrySaved:'Country updated.', toast_monthSaved:'{month} figures saved for {name}.',
@@ -527,7 +531,7 @@ var I18N = {
     dash:'—', all:'Tous',
     nav_dashboard:'Tableau de bord', nav_entry:'Saisie de données', nav_admin:"Panneau d'administration",
     login_tagline:'Suivi des ventes {year} — connectez-vous pour continuer', login_username:'Identifiant', login_password:'Mot de passe',
-    login_signIn:'Se connecter', login_error:'Identifiant ou mot de passe incorrect.', login_footer:"Demandez un compte à votre administrateur si vous n'en avez pas encore.",
+    login_signIn:'Se connecter', login_signingIn:'Connexion…', login_error:'Identifiant ou mot de passe incorrect.', login_footer:"Demandez un compte à votre administrateur si vous n'en avez pas encore.",
     topbar_dashTitle:'Objectifs {company} {year}', topbar_dashSub:'{count} distributeurs suivis · mis à jour le {date}',
     topbar_distSub:'Détail du distributeur', topbar_enterData:'Saisir des données',
     topbar_entryTitle:'Saisie de données', topbar_entrySubAssigned:'Vous pouvez modifier {count} distributeur{s} assigné{s}', topbar_entrySubAll:'Tous les distributeurs',
@@ -624,7 +628,7 @@ var I18N = {
     admin_saveChanges:'Enregistrer les modifications', admin_createUser:'Créer l’utilisateur', admin_resetPwTitle:'Réinitialiser le mot de passe — {username}',
     admin_newPassword:'Nouveau mot de passe', admin_setPassword:'Définir le mot de passe', admin_deleteUserTitle:'Supprimer l’utilisateur',
     admin_deleteUserBody:"Retirer {username} de cet espace ? Cette personne ne pourra plus se connecter.", admin_deleteUserConfirm:'Supprimer l’utilisateur',
-    toast_notConnected:'Non connecté — modification conservée pour cette session uniquement.', toast_saved:'Enregistré pour tout le monde.',
+    toast_notConnected:'Non connecté — modification conservée pour cette session uniquement.', toast_saved:'Enregistré pour tout le monde.', toast_saving:'Enregistrement…',
     toast_readOnly:"Vous êtes en lecture seule sur cette page, la modification n'a pas été enregistrée.",
     toast_conflict:"Quelqu'un d'autre vient d'enregistrer des modifications — rechargement de la dernière version.", toast_couldNotSave:'Enregistrement impossible — modification conservée pour cette session uniquement.',
     toast_commentSaved:'Commentaire enregistré.', toast_countrySaved:'Pays mis à jour.', toast_monthSaved:'Données de {month} enregistrées pour {name}.',
@@ -945,9 +949,30 @@ function logAudit(action, detail){
    it POSTs the whole STATE to Code.gs and replaces STATE with whatever the
    server actually accepted (see Code.gs's reconcileForSave_ — a non-admin's
    out-of-scope edits are silently reverted there, not just hidden by the UI). */
+/* Apps Script Web App requests routinely take a couple of seconds (Google's
+   own dispatch overhead plus the Drive round-trip for this dataset's size)
+   — not a bug, just how the platform behaves. Rather than try to shave that
+   down further, a small "Saving…" indicator makes the wait read as
+   "working" instead of "frozen". */
+function showSaving(){
+  var el = byId('saving-indicator');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'saving-indicator';
+    el.className = 'saving-indicator';
+    el.innerHTML = '<span class="spinner"></span><span>'+esc(t('toast_saving'))+'</span>';
+    document.body.appendChild(el);
+  }
+}
+function hideSaving(){
+  var el = byId('saving-indicator');
+  if(el) el.remove();
+}
 async function persistNow(successMsg){
   if(!SESSION.user){ return; }
+  showSaving();
   var res = await postGAS('save', { username: SESSION.user.username, password: SESSION.password, state: STATE });
+  hideSaving();
   if(res.ok){
     STATE = res.data;
     ensureCountriesList();
@@ -1084,9 +1109,10 @@ function wireLogin(){
     e.preventDefault();
     var u = byId('li-user').value, p = byId('li-pass').value;
     var submitBtn = form.querySelector('button[type=submit]');
-    if(submitBtn) submitBtn.disabled = true;
+    var submitBtnOrigHtml = submitBtn ? submitBtn.innerHTML : '';
+    if(submitBtn){ submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span> '+esc(t('login_signingIn')); }
     var res = await postGAS('login', { username: u, password: p });
-    if(submitBtn) submitBtn.disabled = false;
+    if(submitBtn){ submitBtn.disabled = false; submitBtn.innerHTML = submitBtnOrigHtml; }
     var errBox = byId('login-error');
     if(!res.ok){
       var msg;
