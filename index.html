@@ -263,7 +263,7 @@
   .kpi{ padding:16px 18px; }
   .kpi-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.05em; color:var(--text-muted); font-weight:600; margin-bottom:8px; }
   .kpi-value{ font-family:var(--font-display); font-size:26px; font-weight:700; letter-spacing:-0.01em; }
-  .kpi-sub{ font-size:12px; color:var(--text-muted); margin-top:6px; display:flex; align-items:center; gap:6px; }
+  .kpi-sub{ font-size:12px; color:var(--text-muted); margin-top:6px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
   .kpi-delta-up{ color:var(--good); font-weight:700; }
   .kpi-delta-down{ color:var(--critical); font-weight:700; }
 
@@ -285,6 +285,12 @@
   .seg button{ border:none; background:var(--surface-2); color:var(--text-2); padding:7px 12px; font-size:12.5px; font-weight:600; cursor:pointer; border-right:1px solid var(--border); }
   .seg button:last-child{ border-right:none; }
   .seg button.active{ background:var(--accent); color:var(--accent-ink); }
+
+  .period-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+  .period-bar select{ padding:7px 10px; border-radius:8px; border:1px solid var(--border); background:var(--surface-2); color:var(--text); font-size:12.5px; }
+  .period-prev-label{ font-size:12px; color:var(--text-muted); }
+  .trend-badge{ font-size:11.5px; font-weight:700; white-space:nowrap; }
+  .trend-arrow{ font-size:11px; font-weight:700; margin-left:3px; }
 
   .empty-state{ text-align:center; padding:50px 20px; color:var(--text-muted); }
   .empty-state svg{ width:34px; height:34px; margin-bottom:10px; opacity:.6; }
@@ -412,15 +418,16 @@ var I18N = {
     topbar_distSub:'Distributor detail', topbar_enterData:'Enter data',
     topbar_entryTitle:'Data entry', topbar_entrySubAssigned:'You can edit {count} assigned distributor{s}', topbar_entrySubAll:'All distributors',
     topbar_adminTitle:'Admin panel', topbar_adminSub:'Manage user access and workspace settings', topbar_addUser:'Add user',
-    kpi_forecastVolume:'Forecast volume (Cts)', kpi_forecastVolumeSub:'Target quantity, {quarters} combined',
+    kpi_forecastVolume:'Forecast volume (Cts)', kpi_forecastVolumeSub:'Target quantity, {quarters} combined', kpi_forecastVolumeSubPeriod:'Target quantity, {period}',
     kpi_actualVolume:'Actual volume (Cts)', kpi_ofForecastVolume:'of forecast volume', kpi_noForecastYet:'No forecast recorded yet',
-    kpi_revenueObjective:'Revenue objective', kpi_revenueObjectiveSub:'Target revenue, {quarters} combined',
+    kpi_revenueObjective:'Revenue objective', kpi_revenueObjectiveSub:'Target revenue, {quarters} combined', kpi_revenueObjectiveSubPeriod:'Target revenue, {period}',
     kpi_revenueBooked:'Revenue booked', kpi_revenueBookedSub:'Realised sales, {year}', kpi_ofRevenueObjective:'of revenue objective', kpi_noRevenueObjectiveYet:'No revenue objective set yet',
     kpi_distOnTrack:'Distributors on track', kpi_distOnTrackSub:'{behind} behind target · {noTarget} with no forecast set',
     kpi_estTrucks:'Est. trucks', kpi_estTrucksSub:'From source workbook',
     kpi_enCoursQty:'En Cours — Outstanding Qty', kpi_enCoursQtySub:'Forecast minus actual, Cts',
     kpi_enCoursRevenue:'En Cours — Outstanding Revenue (est.)', kpi_enCoursRevenueSub:'Outstanding qty × current avg. price',
-    chart_fcVsActualTop:'Forecast vs. actual volume — top distributors', chart_fcVsActualTopCap:'Cartons/cases (Cts), by target size, {quarters} combined',
+    chart_fcVsActualTop:'Forecast vs. actual volume — top distributors', chart_fcVsActualTopCap:'Cartons/cases (Cts), by target size, {quarters} combined', chart_fcVsActualTopCapPeriod:'Cartons/cases (Cts), by target size, {period}',
+    chart_periodVolume:'{period} volume — forecast vs. actual', chart_periodRevenue:'{period} revenue — objective vs. achieved',
     chart_portfolioStatus:'Portfolio status', chart_portfolioStatusCap:'Distributors by attainment vs. quantity target',
     chart_monthlyVolume:'Monthly volume — forecast vs. actual', chart_monthlyVolumeCap:'All distributors combined, Cts',
     chart_monthlyRevenue:'Monthly revenue — objective vs. achieved', chart_monthlyRevenueCap:'All distributors combined, {currency}',
@@ -432,6 +439,7 @@ var I18N = {
     table_enCoursQty:'En Cours Qty', table_enCoursRevenue:'En Cours Rev.',
     table_comment:'Comment', table_open:'Open', table_noMatch:'No distributors match your filters.',
     table_searchPlaceholder:'Search distributors…', table_allCountries:'All countries',
+    period_year:'Year', period_quarter:'Quarter', period_month:'Month', period_vs:'vs. {period}', period_noPrior:'No prior period to compare yet',
     dist_back:'Dashboard', dist_ofForecastAchieved:'{pct} of forecast volume achieved ({quarters})', dist_noForecast:'No quantity forecast recorded yet',
     dist_forecastVolume:'Forecast volume', dist_actualVolume:'Actual volume',
     dist_forecastRevenue:'Objective revenue', dist_revenueBooked:'Revenue booked',
@@ -524,15 +532,16 @@ var I18N = {
     topbar_distSub:'Détail du distributeur', topbar_enterData:'Saisir des données',
     topbar_entryTitle:'Saisie de données', topbar_entrySubAssigned:'Vous pouvez modifier {count} distributeur{s} assigné{s}', topbar_entrySubAll:'Tous les distributeurs',
     topbar_adminTitle:"Panneau d'administration", topbar_adminSub:"Gérer les accès utilisateurs et les paramètres de l'espace", topbar_addUser:'Ajouter un utilisateur',
-    kpi_forecastVolume:'Volume prévisionnel (Cts)', kpi_forecastVolumeSub:'Quantité cible, {quarters} combinés',
+    kpi_forecastVolume:'Volume prévisionnel (Cts)', kpi_forecastVolumeSub:'Quantité cible, {quarters} combinés', kpi_forecastVolumeSubPeriod:'Quantité cible, {period}',
     kpi_actualVolume:'Volume réalisé (Cts)', kpi_ofForecastVolume:'du volume prévisionnel', kpi_noForecastYet:'Aucune prévision enregistrée',
-    kpi_revenueObjective:'Objectif de chiffre d’affaires', kpi_revenueObjectiveSub:'Chiffre d’affaires cible, {quarters} combinés',
+    kpi_revenueObjective:'Objectif de chiffre d’affaires', kpi_revenueObjectiveSub:'Chiffre d’affaires cible, {quarters} combinés', kpi_revenueObjectiveSubPeriod:'Chiffre d’affaires cible, {period}',
     kpi_revenueBooked:'Chiffre d’affaires réalisé', kpi_revenueBookedSub:'Ventes réalisées, {year}', kpi_ofRevenueObjective:'de l’objectif de chiffre d’affaires', kpi_noRevenueObjectiveYet:'Aucun objectif de chiffre d’affaires défini',
     kpi_distOnTrack:'Distributeurs dans les objectifs', kpi_distOnTrackSub:'{behind} en retard · {noTarget} sans prévision définie',
     kpi_estTrucks:'Camions est.', kpi_estTrucksSub:'Depuis le classeur source',
     kpi_enCoursQty:'En Cours — Quantité', kpi_enCoursQtySub:'Prévision moins réalisé, Cts',
     kpi_enCoursRevenue:'En Cours — Chiffre d’affaires (est.)', kpi_enCoursRevenueSub:'Quantité en cours × prix moyen actuel',
-    chart_fcVsActualTop:'Volume prévu vs réalisé — principaux distributeurs', chart_fcVsActualTopCap:'Cartons/caisses (Cts), par taille d’objectif, {quarters} combinés',
+    chart_fcVsActualTop:'Volume prévu vs réalisé — principaux distributeurs', chart_fcVsActualTopCap:'Cartons/caisses (Cts), par taille d’objectif, {quarters} combinés', chart_fcVsActualTopCapPeriod:'Cartons/caisses (Cts), par taille d’objectif, {period}',
+    chart_periodVolume:'Volume {period} — prévu vs réalisé', chart_periodRevenue:'Chiffre d’affaires {period} — objectif vs réalisé',
     chart_portfolioStatus:'Statut du portefeuille', chart_portfolioStatusCap:'Distributeurs selon la réalisation vs objectif de quantité',
     chart_monthlyVolume:'Volume mensuel — prévu vs réalisé', chart_monthlyVolumeCap:'Tous distributeurs confondus, Cts',
     chart_monthlyRevenue:"Chiffre d'affaires mensuel — objectif vs réalisé", chart_monthlyRevenueCap:'Tous distributeurs confondus, {currency}',
@@ -544,6 +553,7 @@ var I18N = {
     table_enCoursQty:'Qté en cours', table_enCoursRevenue:'CA en cours',
     table_comment:'Commentaire', table_open:'Ouvrir', table_noMatch:'Aucun distributeur ne correspond à vos filtres.',
     table_searchPlaceholder:'Rechercher un distributeur…', table_allCountries:'Tous les pays',
+    period_year:'Année', period_quarter:'Trimestre', period_month:'Mois', period_vs:'vs {period}', period_noPrior:'Aucune période antérieure à comparer',
     dist_back:'Tableau de bord', dist_ofForecastAchieved:'{pct} du volume prévisionnel atteint ({quarters})', dist_noForecast:'Aucune prévision de quantité enregistrée',
     dist_forecastVolume:'Volume prévisionnel', dist_actualVolume:'Volume réalisé',
     dist_forecastRevenue:'Objectif de chiffre d’affaires', dist_revenueBooked:'Chiffre d’affaires réalisé',
@@ -706,6 +716,97 @@ function statusPill(s){
   return '<span class="pill pill-'+s+'">'+icon(statusIcon(s))+statusLabel(s)+'</span>';
 }
 
+/* ============================ PERIOD FILTER ================================
+   One shared "period" selection drives KPIs, charts, the table, and the
+   distributor page: a Year (the existing full-year totals), a Quarter
+   (a single T1–T4 slice), or a Month (a single Jan–Dec slice). Only one
+   year of data exists today (STATE.meta.year) — availablePeriodYears()
+   returns just that year and previousPeriod() for a Year selection returns
+   null (nothing to compare against yet), but every helper here is written
+   so that adding a second year of data later needs no further changes. */
+function availablePeriodYears(){ return [STATE.meta.year]; }
+function defaultPeriod(){ return { type:'year', year: STATE.meta.year, quarter:null, month:null }; }
+function periodMonths(period){
+  if(period.type==='month') return [period.month];
+  if(period.type==='quarter') return MONTHS.filter(function(m){ return MONTH_TO_Q[m]===period.quarter; });
+  return MONTHS.slice();
+}
+/* Window used by the monthly trend charts: the full year for a Year
+   selection, that quarter's 3 months for a Quarter selection, and the
+   selected month plus the previous one (when one exists) for a Month
+   selection — so a Month view still shows an actual trend line, not a
+   single dot. */
+function periodChartMonths(period){
+  if(period.type==='year') return MONTHS.slice();
+  if(period.type==='quarter') return periodMonths(period);
+  var idx = MONTHS.indexOf(period.month);
+  return idx>0 ? [MONTHS[idx-1], period.month] : [period.month];
+}
+function previousPeriod(period){
+  if(period.type==='month'){
+    var idx = MONTHS.indexOf(period.month);
+    if(idx<=0) return null;
+    return { type:'month', year:period.year, month: MONTHS[idx-1], quarter:null };
+  }
+  if(period.type==='quarter'){
+    var qi = QUARTERS.indexOf(period.quarter);
+    if(qi<=0) return null;
+    return { type:'quarter', year:period.year, quarter: QUARTERS[qi-1], month:null };
+  }
+  return null; // no prior year of data on record yet
+}
+function periodLabel(period){
+  if(period.type==='month') return monthLabel(period.month)+' '+period.year;
+  if(period.type==='quarter') return period.quarter+' '+period.year;
+  return String(period.year);
+}
+function periodPrevLabel(period){
+  var p = previousPeriod(period);
+  return p ? periodLabel(p) : null;
+}
+/* Same output shape as distTotals(d), scoped to one period slice instead of
+   the whole year. distTotals(d) itself remains the Year case (it sums the
+   4 quarters — the same authoritative total used by every other total on
+   this dashboard), so a Year selection is just distTotals(d) unchanged. */
+function periodSlice(d, period){
+  if(period.type==='month') return d.months[period.month] || {};
+  if(period.type==='quarter') return d.quarters[period.quarter] || {};
+  return null;
+}
+function distPeriodTotals(d, period){
+  if(period.type==='year') return distTotals(d);
+  var s = periodSlice(d, period);
+  var fq = s.forecast_qty, aq = s.actual_qty, ac = s.actual_ca, fc = s.forecast_ca;
+  var hasForecast = fq!=null, hasForecastCA = fc!=null;
+  var attainment = (hasForecast && fq>0) ? ((aq||0)/fq*100) : null;
+  var caAttainment = (hasForecastCA && fc>0) ? ((ac||0)/fc*100) : null;
+  var enCoursQty = hasForecast ? Math.max(fq-(aq||0), 0) : null;
+  var enCoursCA = (enCoursQty!=null && aq>0) ? enCoursQty*((ac||0)/aq) : (enCoursQty===0 ? 0 : null);
+  return { forecastQty: fq||0, actualQty: aq||0, actualCA: ac||0, attainment: attainment, hasForecast: hasForecast, enCoursQty: enCoursQty, enCoursCA: enCoursCA, forecastCA: fc||0, hasForecastCA: hasForecastCA, caAttainment: caAttainment };
+}
+function pctChange(curr, prev){
+  if(curr==null || prev==null || prev===0) return null;
+  return (curr-prev)/Math.abs(prev)*100;
+}
+/* Full trend badge (arrow + % change) for KPI-card subtitles — used for
+   absolute quantities (volume, revenue), where a % change is meaningful. */
+function trendFragment(curr, prev){
+  var pc = pctChange(curr, prev);
+  if(pc==null) return '';
+  var cls = pc>0.5 ? 'kpi-delta-up' : (pc<-0.5 ? 'kpi-delta-down' : '');
+  var arrow = pc>0.5 ? '▲' : (pc<-0.5 ? '▼' : '▬');
+  return ' <span class="trend-badge '+cls+'">'+arrow+' '+(pc>0?'+':'')+fmtPct(pc,0)+'</span>';
+}
+/* Compact arrow-only indicator for table cells that are already a % value
+   (attainment) — compares in percentage POINTS, not relative % change. */
+function trendArrowOnly(curr, prev){
+  if(curr==null || prev==null) return '';
+  var diff = curr - prev;
+  var cls = diff>0.5 ? 'kpi-delta-up' : (diff<-0.5 ? 'kpi-delta-down' : '');
+  var arrow = diff>0.5 ? '▲' : (diff<-0.5 ? '▼' : '▬');
+  return ' <span class="trend-arrow '+cls+'" title="'+esc(fmtPct(prev))+' → '+esc(fmtPct(curr))+'">'+arrow+'</span>';
+}
+
 /* ============================ CONFIG / NETWORK =========================== */
 /* Edit GAS_URL after you deploy the Apps Script Web App (see Code.gs). */
 var GAS_URL = 'https://script.google.com/macros/s/AKfycbzBr3qIcpBQPiZ8kqw2wNE9F4jmDgVXGieKMEa05Heo0NJoib1_muAuQ6rzBNMdqdbioQ/exec';
@@ -806,7 +907,7 @@ function ensureCountriesList(){
   }
 }
 ensureCountriesList();
-var SESSION = { user: null, lang:'en', view: 'dashboard', distId: null, dashPeriod: 'ytd', countryFilter: 'all',
+var SESSION = { user: null, lang:'en', view: 'dashboard', distId: null, period: defaultPeriod(), countryFilter: 'all',
   entryMode: 'dist', entryDist: null, entryMonth: 'Jan', entryArticle: null, entryArticleQuery: '', entryArticleMonth: 'Jan',
   entryCountry: 'all',
   sortKey: 'name', sortDir: 1, search: '', statusFilter: 'all', skuSearch: '' };
@@ -920,6 +1021,7 @@ function setView(view, opts){
 function logout(){
   SESSION.user = null;
   SESSION.password = null;
+  SESSION.period = defaultPeriod();
   IMPORT_STATE = null;
   forgetSession();
   stopPolling();
@@ -1216,7 +1318,9 @@ function groupByCountry(rows){
 }
 function renderDashboardView(){
   var scoped = scopedDistributors();
-  var withTotals = scoped.map(function(x){ return Object.assign({}, x, { t: distTotals(x) }); });
+  var period = SESSION.period;
+  var prevPeriod = previousPeriod(period);
+  var withTotals = scoped.map(function(x){ return Object.assign({}, x, { t: distPeriodTotals(x, period), tPrev: prevPeriod ? distPeriodTotals(x, prevPeriod) : null }); });
 
   var totalFQ = sum(withTotals.map(function(x){return x.t.forecastQty;}));
   var totalAQ = sum(withTotals.map(function(x){return x.t.actualQty;}));
@@ -1229,31 +1333,49 @@ function renderDashboardView(){
   var counts = { good:0, warning:0, critical:0, neutral:0 };
   withTotals.forEach(function(x){ counts[statusFor(x.t.attainment)]++; });
 
-  // monthly aggregate trend (scoped to the selected country, or all)
-  var monthlyFQ = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].forecast_qty : null; })); });
-  var monthlyAQ = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].actual_qty : null; })); });
-  var monthlyAC = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].actual_ca : null; })); });
-  var monthlyFC = MONTHS.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].forecast_ca : null; })); });
+  // previous-period aggregate totals for the KPI trend badges (null-safe:
+  // there's nothing to compare a Year selection against yet, and the
+  // first month/quarter of the year has no prior period either)
+  var prevTotalFQ = prevPeriod ? sum(withTotals.map(function(x){return x.tPrev.forecastQty;})) : null;
+  var prevTotalAQ = prevPeriod ? sum(withTotals.map(function(x){return x.tPrev.actualQty;})) : null;
+  var prevTotalAC = prevPeriod ? sum(withTotals.map(function(x){return x.tPrev.actualCA;})) : null;
+  var prevTotalFC = prevPeriod ? sum(withTotals.map(function(x){return x.tPrev.forecastCA;})) : null;
 
-  // top 8 by forecast qty (for forecast vs actual comparison)
+  // monthly aggregate trend, scoped to the selected country and to the
+  // period's chart window (full year / one quarter's 3 months / the
+  // selected month plus the previous one)
+  var chartMonths = periodChartMonths(period);
+  var monthlyFQ = chartMonths.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].forecast_qty : null; })); });
+  var monthlyAQ = chartMonths.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].actual_qty : null; })); });
+  var monthlyAC = chartMonths.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].actual_ca : null; })); });
+  var monthlyFC = chartMonths.map(function(m){ return sumOrNull(scoped.map(function(x){ return x.months[m] ? x.months[m].forecast_ca : null; })); });
+
+  // top 8 by forecast qty (for forecast vs actual comparison), scoped to the selected period
   var topQty = withTotals.filter(function(x){return x.t.forecastQty>0;}).sort(function(a,b){ return b.t.forecastQty - a.t.forecastQty; }).slice(0,8);
+
+  var qtySub = period.type==='year' ? t('kpi_forecastVolumeSub',{quarters:quartersLabel()}) : t('kpi_forecastVolumeSubPeriod',{period:periodLabel(period)});
+  var revSub = period.type==='year' ? t('kpi_revenueObjectiveSub',{quarters:quartersLabel()}) : t('kpi_revenueObjectiveSubPeriod',{period:periodLabel(period)});
 
   var kpis = ''+
     '<div class="kpi-grid">'+
-      kpiCard(t('kpi_forecastVolume'), fmtInt(totalFQ), t('kpi_forecastVolumeSub',{quarters:quartersLabel()}), 'box')+
-      kpiCard(t('kpi_actualVolume'), fmtInt(totalAQ), overallAttain!=null ? attainmentSub(overallAttain) : t('kpi_noForecastYet'), 'truck')+
-      kpiCard(t('kpi_revenueObjective'), fmtCA(totalFC), t('kpi_revenueObjectiveSub',{quarters:quartersLabel()}), 'building')+
-      kpiCard(t('kpi_revenueBooked'), fmtCA(totalAC), overallCaAttain!=null ? caAttainmentSub(overallCaAttain) : t('kpi_noRevenueObjectiveYet'), 'building')+
+      kpiCard(t('kpi_forecastVolume'), fmtInt(totalFQ), qtySub+trendFragment(totalFQ, prevTotalFQ), 'box')+
+      kpiCard(t('kpi_actualVolume'), fmtInt(totalAQ), (overallAttain!=null ? attainmentSub(overallAttain) : t('kpi_noForecastYet'))+trendFragment(totalAQ, prevTotalAQ), 'truck')+
+      kpiCard(t('kpi_revenueObjective'), fmtCA(totalFC), revSub+trendFragment(totalFC, prevTotalFC), 'building')+
+      kpiCard(t('kpi_revenueBooked'), fmtCA(totalAC), (overallCaAttain!=null ? caAttainmentSub(overallCaAttain) : t('kpi_noRevenueObjectiveYet'))+trendFragment(totalAC, prevTotalAC), 'building')+
       kpiCard(t('kpi_distOnTrack'), counts.good+' / '+withTotals.length, t('kpi_distOnTrackSub',{behind:counts.critical, noTarget:counts.neutral}), 'shield')+
       kpiCard(t('kpi_enCoursQty'), fmtInt(totalEnCoursQty), t('kpi_enCoursQtySub'), 'box')+
       kpiCard(t('kpi_enCoursRevenue'), fmtCA(totalEnCoursCA), t('kpi_enCoursRevenueSub'), 'building')+
     '</div>';
 
+  var fcVsActualCap = period.type==='year' ? t('chart_fcVsActualTopCap',{quarters:quartersLabel()}) : t('chart_fcVsActualTopCapPeriod',{period:periodLabel(period)});
+  var monthlyVolTitle = period.type==='year' ? t('chart_monthlyVolume') : t('chart_periodVolume',{period:periodLabel(period)});
+  var monthlyRevTitle = period.type==='year' ? t('chart_monthlyRevenue') : t('chart_periodRevenue',{period:periodLabel(period)});
+
   var charts = ''+
     '<div class="charts-row">'+
       '<div class="card card-pad">'+
         '<div class="chart-title">'+t('chart_fcVsActualTop')+'</div>'+
-        '<div class="chart-caption">'+t('chart_fcVsActualTopCap',{quarters:quartersLabel()})+'</div>'+
+        '<div class="chart-caption">'+fcVsActualCap+'</div>'+
         svgBarChartH(topQty.map(function(x){ return { label:x.name, values:[x.t.forecastQty, x.t.actualQty] }; }), { seriesNames:[t('chart_forecast'),t('chart_actual')], colors:['var(--series-1)','var(--series-2)'] })+
         legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
       '</div>'+
@@ -1275,15 +1397,15 @@ function renderDashboardView(){
     '</div>'+
     '<div class="charts-row2">'+
       '<div class="card card-pad">'+
-        '<div class="chart-title">'+t('chart_monthlyVolume')+'</div>'+
+        '<div class="chart-title">'+monthlyVolTitle+'</div>'+
         '<div class="chart-caption">'+t('chart_monthlyVolumeCap')+'</div>'+
-        svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFQ},{name:t('chart_actual'), values:monthlyAQ}], {colors:['var(--series-1)','var(--series-2)']})+
+        svgLineChart(chartMonths.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFQ},{name:t('chart_actual'), values:monthlyAQ}], {colors:['var(--series-1)','var(--series-2)']})+
         legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
       '</div>'+
       '<div class="card card-pad">'+
-        '<div class="chart-title">'+t('chart_monthlyRevenue')+'</div>'+
+        '<div class="chart-title">'+monthlyRevTitle+'</div>'+
         '<div class="chart-caption">'+t('chart_monthlyRevenueCap',{currency:STATE.meta.currencyLabel})+'</div>'+
-        svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFC},{name:t('chart_actual'), values:monthlyAC}], {colors:['var(--series-1)','var(--series-2)'], fmt:fmtCA})+
+        svgLineChart(chartMonths.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFC},{name:t('chart_actual'), values:monthlyAC}], {colors:['var(--series-1)','var(--series-2)'], fmt:fmtCA})+
         legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
       '</div>'+
     '</div>';
@@ -1297,6 +1419,7 @@ function renderDashboardView(){
   return ''+
     topbar(t('topbar_dashTitle',{company:STATE.meta.company, year:STATE.meta.year}), t('topbar_dashSub',{count:scoped.length, date:esc(STATE.meta.lastUpdated)}))+
     '<div class="content">'+
+      renderPeriodBar() +
       kpis + charts +
       '<div class="card">'+
         '<div class="card-pad" style="padding-bottom:0;">'+
@@ -1330,6 +1453,50 @@ function legendRow(names, colors){
 }
 function legendDot(color, label){
   return '<span class="legend-item"><span class="legend-swatch" style="background:'+resolveColor(color)+'"></span>'+esc(label)+'</span>';
+}
+
+/* Shared Year / Quarter / Month period selector — used at the top of both
+   the Dashboard and the Distributor detail page, so the same selection
+   drives KPIs, charts, the table, and (on the distributor page) which row
+   of the objectives table gets highlighted. */
+function renderPeriodBar(){
+  var p = SESSION.period;
+  var years = availablePeriodYears();
+  var yearOpts = years.map(function(y){ return '<option value="'+y+'"'+(p.year===y?' selected':'')+'>'+y+'</option>'; }).join('');
+  var quarterOpts = QUARTERS.map(function(q){ return '<option value="'+q+'"'+(p.type==='quarter'&&p.quarter===q?' selected':'')+'>'+q+' '+p.year+'</option>'; }).join('');
+  var monthOpts = MONTHS.map(function(m){ return '<option value="'+m+'"'+(p.type==='month'&&p.month===m?' selected':'')+'>'+esc(monthLabel(m))+' '+p.year+'</option>'; }).join('');
+  var picker = '';
+  if(p.type==='year') picker = '<select id="period-year-select">'+yearOpts+'</select>';
+  else if(p.type==='quarter') picker = '<select id="period-quarter-select">'+quarterOpts+'</select>';
+  else picker = '<select id="period-month-select">'+monthOpts+'</select>';
+  var prevLabel = periodPrevLabel(p);
+  var prevText = prevLabel ? t('period_vs',{period:esc(prevLabel)}) : t('period_noPrior');
+  return '<div class="period-bar">'+
+    '<div class="seg" id="period-type-seg">'+
+      ['year','quarter','month'].map(function(k){ return '<button data-period-type="'+k+'" class="'+(p.type===k?'active':'')+'">'+t('period_'+k)+'</button>'; }).join('')+
+    '</div>'+
+    picker+
+    '<span class="period-prev-label">'+icon('dot','')+' '+prevText+'</span>'+
+  '</div>';
+}
+function wirePeriodBar(root, onChange){
+  var seg = byId('period-type-seg');
+  if(seg) seg.addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return;
+    var type = b.getAttribute('data-period-type');
+    if(type===SESSION.period.type) return;
+    var p = SESSION.period;
+    if(type==='year') SESSION.period = { type:'year', year:p.year, quarter:null, month:null };
+    else if(type==='quarter') SESSION.period = { type:'quarter', year:p.year, quarter:(p.quarter||QUARTERS[0]), month:null };
+    else SESSION.period = { type:'month', year:p.year, month:(p.month||MONTHS[0]), quarter:null };
+    onChange();
+  });
+  var yearSel = byId('period-year-select');
+  if(yearSel) yearSel.addEventListener('change', function(){ SESSION.period.year = Number(yearSel.value); onChange(); });
+  var qSel = byId('period-quarter-select');
+  if(qSel) qSel.addEventListener('change', function(){ SESSION.period.quarter = qSel.value; onChange(); });
+  var mSel = byId('period-month-select');
+  if(mSel) mSel.addEventListener('change', function(){ SESSION.period.month = mSel.value; onChange(); });
 }
 
 function applyTableFilters(rows){
@@ -1369,11 +1536,11 @@ function renderDashboardTable(rows){
         '<td>'+esc(r.country||t('dash'))+'</td>'+
         '<td class="num">'+fmtInt(r.t.forecastQty)+'</td>'+
         '<td class="num">'+fmtInt(r.t.actualQty)+'</td>'+
-        '<td class="num">'+fmtPct(r.t.attainment)+'</td>'+
+        '<td class="num">'+fmtPct(r.t.attainment)+(r.tPrev?trendArrowOnly(r.t.attainment, r.tPrev.attainment):'')+'</td>'+
         '<td>'+statusPill(s)+'</td>'+
         '<td class="num">'+fmtCA(r.t.forecastCA)+'</td>'+
         '<td class="num">'+fmtCA(r.t.actualCA)+'</td>'+
-        '<td class="num">'+fmtPct(r.t.caAttainment)+'</td>'+
+        '<td class="num">'+fmtPct(r.t.caAttainment)+(r.tPrev?trendArrowOnly(r.t.caAttainment, r.tPrev.caAttainment):'')+'</td>'+
         '<td class="num">'+fmtInt(r.t.enCoursQty)+'</td>'+
         '<td class="num">'+fmtCA(r.t.enCoursCA)+'</td>'+
         '<td class="num">'+fmtInt(r.trucks_est)+'</td>'+
@@ -1388,6 +1555,7 @@ function renderDashboardTable(rows){
 function wireDashboardView(){
   var root = byId('root');
   wireCharts(root);
+  wirePeriodBar(root, rerenderDashboard);
   var search = byId('dash-search');
   if(search) search.addEventListener('input', debounce(function(){ SESSION.search = search.value; rerenderDashboardTable(); }, 150));
   var countryFilter = byId('country-filter');
@@ -1414,7 +1582,9 @@ function wireDashboardView(){
 }
 function rerenderDashboard(){ byId('root').innerHTML = renderShell(); wireShell(); }
 function rerenderDashboardTable(){
-  var d = scopedDistributors().map(function(x){ return Object.assign({}, x, { t: distTotals(x) }); });
+  var period = SESSION.period;
+  var prevPeriod = previousPeriod(period);
+  var d = scopedDistributors().map(function(x){ return Object.assign({}, x, { t: distPeriodTotals(x, period), tPrev: prevPeriod ? distPeriodTotals(x, prevPeriod) : null }); });
   var rows = applyTableFilters(d);
   var wrap = document.querySelector('.scroll-x');
   if(wrap) wrap.innerHTML = renderDashboardTable(rows);
@@ -1445,18 +1615,27 @@ function articleYearTotal(article, field){
 function renderDistributorView(distId){
   var d = STATE.distributors.find(function(x){ return x.id===distId; });
   if(!d) return topbar('Not found','')+'<div class="content"><div class="empty-state">Distributor not found.</div></div>';
-  var tt = distTotals(d);
+  var period = SESSION.period;
+  var prevPeriod = previousPeriod(period);
+  var tt = distPeriodTotals(d, period);
+  var ttPrev = prevPeriod ? distPeriodTotals(d, prevPeriod) : null;
   var s = statusFor(tt.attainment);
   var canEdit = canEditDistributor(SESSION.user, d.name);
   var canEditCountry = SESSION.user.role === 'admin';
   var sku = STATE.skuByDistributor[distId] || null;
 
-  var monthlyFQ = MONTHS.map(function(m){ return d.months[m] ? d.months[m].forecast_qty : null; });
-  var monthlyAQ = MONTHS.map(function(m){ return d.months[m] ? d.months[m].actual_qty : null; });
-  var monthlyAC = MONTHS.map(function(m){ return d.months[m] ? d.months[m].actual_ca : null; });
-  var monthlyFC = MONTHS.map(function(m){ return d.months[m] ? d.months[m].forecast_ca : null; });
+  var chartMonths = periodChartMonths(period);
+  var monthlyFQ = chartMonths.map(function(m){ return d.months[m] ? d.months[m].forecast_qty : null; });
+  var monthlyAQ = chartMonths.map(function(m){ return d.months[m] ? d.months[m].actual_qty : null; });
+  var monthlyAC = chartMonths.map(function(m){ return d.months[m] ? d.months[m].actual_ca : null; });
+  var monthlyFC = chartMonths.map(function(m){ return d.months[m] ? d.months[m].forecast_ca : null; });
 
   var right = canEdit ? '<button class="btn btn-primary btn-sm" id="goto-entry">'+icon('edit')+t('topbar_enterData')+'</button>' : '';
+
+  var periodQtySub = period.type==='year' ? t('dist_quartersCts',{quarters:quartersLabel()}) : periodLabel(period);
+  var periodRevSub = period.type==='year' ? t('dist_quartersCts',{quarters:quartersLabel()}) : periodLabel(period);
+  var monthlyVolTitle = period.type==='year' ? t('dist_monthlyVolume') : t('chart_periodVolume',{period:periodLabel(period)});
+  var monthlyRevTitle = period.type==='year' ? t('dist_monthlyRevenue') : t('chart_periodRevenue',{period:periodLabel(period)});
 
   var body = ''+
     topbar(d.name, t('topbar_distSub'), right)+
@@ -1464,32 +1643,33 @@ function renderDistributorView(distId){
       '<div class="breadcrumb"><button id="back-dash">'+icon('chevronLeft')+' '+t('dist_back')+'</button><span>/</span>'+
         (d.country ? '<button data-country-crumb="'+esc(d.country)+'">'+esc(d.country)+'</button><span>/</span>' : '')+
         '<span>'+esc(d.name)+'</span></div>'+
-      '<div style="display:flex; align-items:center; gap:10px; margin: 10px 0 20px;">'+statusPill(s)+'<span style="color:var(--text-muted); font-size:12.5px;">'+(tt.attainment!=null?t('dist_ofForecastAchieved',{pct:fmtPct(tt.attainment), quarters:quartersLabel()}):t('dist_noForecast'))+'</span></div>'+
+      renderPeriodBar() +
+      '<div style="display:flex; align-items:center; gap:10px; margin: 10px 0 20px;">'+statusPill(s)+'<span style="color:var(--text-muted); font-size:12.5px;">'+(tt.attainment!=null?t('dist_ofForecastAchieved',{pct:fmtPct(tt.attainment), quarters:periodLabel(period)}):t('dist_noForecast'))+'</span></div>'+
       '<div class="kpi-grid">'+
-        kpiCard(t('dist_forecastVolume'), fmtInt(tt.forecastQty), t('dist_quartersCts',{quarters:quartersLabel()}), 'box')+
-        kpiCard(t('dist_actualVolume'), fmtInt(tt.actualQty), t('dist_quartersCts',{quarters:quartersLabel()}), 'truck')+
-        kpiCard(t('dist_forecastRevenue'), fmtCA(tt.forecastCA), t('dist_quartersCts',{quarters:quartersLabel()}), 'building')+
-        kpiCard(t('dist_revenueBooked'), fmtCA(tt.actualCA), tt.caAttainment!=null ? caAttainmentSub(tt.caAttainment) : t('dist_realised',{quarters:quartersLabel()}), 'building')+
+        kpiCard(t('dist_forecastVolume'), fmtInt(tt.forecastQty), periodQtySub+(ttPrev?trendFragment(tt.forecastQty, ttPrev.forecastQty):''), 'box')+
+        kpiCard(t('dist_actualVolume'), fmtInt(tt.actualQty), periodQtySub+(ttPrev?trendFragment(tt.actualQty, ttPrev.actualQty):''), 'truck')+
+        kpiCard(t('dist_forecastRevenue'), fmtCA(tt.forecastCA), periodRevSub+(ttPrev?trendFragment(tt.forecastCA, ttPrev.forecastCA):''), 'building')+
+        kpiCard(t('dist_revenueBooked'), fmtCA(tt.actualCA), (tt.caAttainment!=null ? caAttainmentSub(tt.caAttainment) : t('dist_realised',{quarters:periodLabel(period)}))+(ttPrev?trendFragment(tt.actualCA, ttPrev.actualCA):''), 'building')+
         kpiCard(t('kpi_estTrucks'), fmtInt(d.trucks_est), t('kpi_estTrucksSub'), 'truck')+
         kpiCard(t('kpi_enCoursQty'), fmtInt(tt.enCoursQty), t('kpi_enCoursQtySub'), 'box')+
         kpiCard(t('kpi_enCoursRevenue'), fmtCA(tt.enCoursCA), t('kpi_enCoursRevenueSub'), 'building')+
       '</div>'+
       '<div class="charts-row2">'+
         '<div class="card card-pad">'+
-          '<div class="chart-title">'+t('dist_monthlyVolume')+'</div><div class="chart-caption">'+t('dist_monthlyVolumeCap')+'</div>'+
-          svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFQ},{name:t('chart_actual'), values:monthlyAQ}], {colors:['var(--series-1)','var(--series-2)']})+
+          '<div class="chart-title">'+monthlyVolTitle+'</div><div class="chart-caption">'+t('dist_monthlyVolumeCap')+'</div>'+
+          svgLineChart(chartMonths.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFQ},{name:t('chart_actual'), values:monthlyAQ}], {colors:['var(--series-1)','var(--series-2)']})+
           legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
         '</div>'+
         '<div class="card card-pad">'+
-          '<div class="chart-title">'+t('dist_monthlyRevenue')+'</div><div class="chart-caption">'+t('dist_monthlyRevenueCap')+'</div>'+
-          svgLineChart(MONTHS.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFC},{name:t('chart_actual'), values:monthlyAC}], {colors:['var(--series-1)','var(--series-2)'], fmt:fmtCA})+
+          '<div class="chart-title">'+monthlyRevTitle+'</div><div class="chart-caption">'+t('dist_monthlyRevenueCap')+'</div>'+
+          svgLineChart(chartMonths.map(monthLabel), [{name:t('chart_forecast'), values:monthlyFC},{name:t('chart_actual'), values:monthlyAC}], {colors:['var(--series-1)','var(--series-2)'], fmt:fmtCA})+
           legendRow([t('chart_forecast'),t('chart_actual')], ['var(--series-1)','var(--series-2)'])+
         '</div>'+
       '</div>'+
       '<div class="card card-pad" style="margin-bottom:14px;">'+
         '<div class="chart-title" style="margin-bottom:2px;">'+t('dist_objectivesTitle')+'</div>'+
         '<div class="chart-caption" style="margin-bottom:12px;">'+t('dist_objectivesCap')+'</div>'+
-        '<div class="scroll-x">'+renderObjectivesTable(d)+'</div>'+
+        '<div class="scroll-x">'+renderObjectivesTable(d, period)+'</div>'+
       '</div>'+
       '<div class="card card-pad" style="margin-bottom:14px; max-width:420px;">'+
         '<div class="chart-title">'+t('dist_country')+'</div>'+
@@ -1518,8 +1698,8 @@ function objPeriodRow(label, obj, opts){
   var fq = obj.forecast_qty, aq = obj.actual_qty, fc = obj.forecast_ca, ac = obj.actual_ca;
   var qtyPct = (fq!=null && fq>0) ? (aq||0)/fq*100 : null;
   var revPct = (fc!=null && fc>0) ? (ac||0)/fc*100 : null;
-  var style = opts.strong ? ' style="font-weight:700; background:var(--surface-sunken);"' : '';
-  return '<tr'+style+'><td>'+esc(label)+'</td>'+
+  var style = 'style="'+(opts.strong ? 'font-weight:700; background:var(--surface-sunken);' : '')+(opts.selected ? ' box-shadow: inset 3px 0 0 var(--accent);' : '')+'"';
+  return '<tr '+style+'><td>'+esc(label)+(opts.selected?' '+icon('dot','')+'':'')+'</td>'+
     '<td class="num">'+fmtInt(fq)+'</td>'+
     '<td class="num">'+fmtInt(aq)+'</td>'+
     '<td class="num">'+fmtPct(qtyPct)+'</td>'+
@@ -1528,12 +1708,15 @@ function objPeriodRow(label, obj, opts){
     '<td class="num">'+fmtPct(revPct)+'</td>'+
   '</tr>';
 }
-function renderObjectivesTable(d){
+/* Shows every Month/Quarter/Year period at once (that's the whole point of
+   this table), but the row matching the dashboard-wide period selector is
+   highlighted with an accent bar so the two stay visually connected. */
+function renderObjectivesTable(d, period){
   var tt = distTotals(d);
   var head = '<tr><th>'+t('obj_period')+'</th><th class="num">'+t('obj_qty')+'</th><th class="num">'+t('obj_achQty')+'</th><th class="num">'+t('obj_qtyPct')+'</th><th class="num">'+t('obj_rev')+'</th><th class="num">'+t('obj_achRev')+'</th><th class="num">'+t('obj_revPct')+'</th></tr>';
-  var monthRows = MONTHS.map(function(m){ return objPeriodRow(monthLabel(m), d.months[m] || {}); }).join('');
-  var quarterRows = QUARTERS.map(function(q){ return objPeriodRow(q, d.quarters[q] || {}); }).join('');
-  var yearRow = objPeriodRow(t('dist_yearTotal'), { forecast_qty: tt.forecastQty, actual_qty: tt.actualQty, forecast_ca: tt.forecastCA, actual_ca: tt.actualCA }, {strong:true});
+  var monthRows = MONTHS.map(function(m){ return objPeriodRow(monthLabel(m), d.months[m] || {}, {selected: period && period.type==='month' && period.month===m}); }).join('');
+  var quarterRows = QUARTERS.map(function(q){ return objPeriodRow(q, d.quarters[q] || {}, {selected: period && period.type==='quarter' && period.quarter===q}); }).join('');
+  var yearRow = objPeriodRow(t('dist_yearTotal'), { forecast_qty: tt.forecastQty, actual_qty: tt.actualQty, forecast_ca: tt.forecastCA, actual_ca: tt.actualCA }, {strong:true, selected: period && period.type==='year'});
   return '<table><thead>'+head+'</thead><tbody>'+
     '<tr class="country-row"><td colspan="7">'+esc(t('obj_monthsGroup'))+'</td></tr>'+monthRows+
     '<tr class="country-row"><td colspan="7">'+esc(t('obj_quartersGroup'))+'</td></tr>'+quarterRows+
@@ -1576,6 +1759,7 @@ function renderSkuResults(sku){
 function wireDistributorView(distId){
   var root = byId('root');
   wireCharts(root);
+  wirePeriodBar(root, rerenderDashboard);
   var back = byId('back-dash'); if(back) back.addEventListener('click', function(){ setView('dashboard'); });
   on(root, 'click', '[data-country-crumb]', function(e, el){
     setView('dashboard', { countryFilter: el.getAttribute('data-country-crumb') });
